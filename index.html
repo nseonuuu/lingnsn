@@ -697,9 +697,9 @@
       document.querySelectorAll(".sidebar-category-button").forEach(btn => {
         btn.addEventListener("click", () => {
           const category = btn.dataset.category;
-          // 예: category-언어학.html 로 이동
           const filename = "category-" + encodeURIComponent(category) + ".html";
-          window.location.href = filename;
+          // categories 폴더로 경로 지정
+          window.location.href = "categories/" + filename;
         });
       });
     }
