@@ -422,15 +422,16 @@
       <h3>About</h3>
       <p>책, 논문, 수업에서 배운 내용을 정리하는 개인/연구 노트입니다.</p>
     </div>
-    <div class="sidebar-section">
-      <h3>Categories</h3>
-      <ul>
-        <li><button type="button" class="sidebar-category-button" data-category="AI / ML">AI / ML</button></li>
-        <li><button type="button" class="sidebar-category-button" data-category="언어학">언어학</button></li>
-        <li><button type="button" class="sidebar-category-button" data-category="문학">문학</button></li>
-        <li><button type="button" class="sidebar-category-button" data-category="철학">철학</button></li>
-        <li><button type="button" class="sidebar-category-button" data-category="역사">역사</button></li>
-      </ul>
+  <div class="sidebar-section">
+    <h3>Categories</h3>
+    <ul>
+      <li><button type="button" class="sidebar-category-button" data-category="AI / ML">AI / ML</button></li>
+      <li><button type="button" class="sidebar-category-button" data-category="언어학">언어학</button></li>
+      <li><button type="button" class="sidebar-category-button" data-category="문학">문학</button></li>
+      <li><button type="button" class="sidebar-category-button" data-category="철학">철학</button></li>
+      <li><button type="button" class="sidebar-category-button" data-category="역사">역사</button></li>
+    </ul>
+  </div>
       <!-- 사이드바 카테고리 글 목록 출력 영역 -->
       <div id="sidebar-category-posts" class="sidebar-posts"></div>
     </div>
@@ -696,8 +697,9 @@
       document.querySelectorAll(".sidebar-category-button").forEach(btn => {
         btn.addEventListener("click", () => {
           const category = btn.dataset.category;
-          setActiveSidebarCategoryButton(category);
-          renderSidebarCategoryPosts(category);
+          // 예: category-언어학.html 로 이동
+          const filename = "category-" + encodeURIComponent(category) + ".html";
+          window.location.href = filename;
         });
       });
     }
