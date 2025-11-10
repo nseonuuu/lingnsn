@@ -12,7 +12,9 @@
       --border: #111111;
       --max-width: 900px;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -20,96 +22,352 @@
       color: var(--fg);
       line-height: 1.6;
     }
-    a { color: inherit; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* 상단 바 */
 
     header {
       border-bottom: 1px solid var(--border);
       padding: 0.75rem 1rem;
       position: sticky;
       top: 0;
-      background: rgba(255,255,255,0.96);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(6px);
       z-index: 20;
     }
+
     .top-bar {
       max-width: var(--max-width);
       margin: 0 auto;
       display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-button {
+      border: 1px solid var(--border);
+      background: transparent;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-button span {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    /* ✎ 에디터 버튼 */
+
+    .editor-link {
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+
+    .editor-link:hover {
+      background: #f4f4f4;
+    }
+
+    /* 사이드바 */
+
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-out;
+      z-index: 29;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 260px;
+      max-width: 80%;
+      height: 100vh;
+      background: var(--bg);
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform 0.2s ease-out;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 0.9rem;
+      font-weight: 600;
     }
-    .brand { font-weight:600; text-transform:uppercase; font-size:0.85rem; }
-    .top-actions { display:flex; gap:0.5rem; align-items:center; }
-    .icon-button {
-      border:1px solid var(--border);
-      background:transparent;
-      padding:0.25rem 0.55rem;
-      font-size:0.8rem;
-      cursor:pointer;
-    }
-    .editor-link {
-      border:1px solid var(--border);
-      padding:0.25rem 0.75rem;
-      font-size:0.8rem;
-      text-transform:uppercase;
-      letter-spacing:0.1em;
-      text-decoration:none;
-      transition:background 0.15s ease;
-    }
-    .editor-link:hover { background:#f4f4f4; }
 
-    main { max-width:var(--max-width); margin:0 auto; padding:2rem 1rem 3rem; }
+    .sidebar-section {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-section h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .sidebar-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-section li + li {
+      margin-top: 0.25rem;
+    }
+
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+    /* 메인 레이아웃 */
+
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+    }
+
+    /* 대문(히어로) */
+
     .hero {
-      border-bottom:1px solid var(--border);
-      padding-bottom:1.5rem;
-      margin-bottom:1.25rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
     }
-    .hero-title { font-size:2rem; margin:0 0 0.25rem; }
-    .hero-subtitle { font-size:0.95rem; color:var(--muted); margin:0 0 1rem; }
+
+    .hero-title {
+      font-size: 2rem;
+      margin: 0 0 0.25rem;
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin: 0 0 1rem;
+    }
+
     .hero-meta {
-      font-size:0.8rem; color:var(--muted);
-      border-top:1px solid var(--border);
-      padding-top:0.5rem;
-      display:flex; justify-content:space-between; flex-wrap:wrap;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.25rem;
     }
-    .section { margin-bottom:2rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
-    .section-title { font-size:0.95rem; text-transform:uppercase; letter-spacing:0.12em; margin:0 0 0.75rem; }
 
-    .featured { border:1px solid var(--border); padding:1rem; margin-bottom:1rem; }
+    /* 카테고리 바 */
+
+    .category-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 0;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .category-label { font-weight: 600; margin-right: 0.5rem; }
+
+    .category-link {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .category-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.1rem;
+      width: 0;
+      height: 1px;
+      background: var(--border);
+      transition: width 0.15s ease-out;
+    }
+
+    .category-link:hover::after { width: 100%; }
+
+    /* 섹션 */
+
+    .section {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0 0 0.75rem;
+    }
+
+    /* 오늘의 발제 */
+
+    .featured {
+      border: 1px solid var(--border);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
     .featured-label {
-      font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em;
-      border-bottom:1px solid var(--border); padding-bottom:0.25rem; margin-bottom:0.5rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
     }
-    .featured-title { font-size:1.1rem; margin:0 0 0.25rem; }
-    .post-meta { font-size:0.8rem; color:var(--muted); margin-bottom:0.5rem; }
-    .summary-line { font-size:0.9rem; }
 
-    .post-list { list-style:none; padding:0; margin:0; font-size:0.9rem; }
-    .post-item { padding:0.5rem 0; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:0.15rem; }
-    .post-item-title { font-weight:500; }
-    .post-item-meta { font-size:0.8rem; color:var(--muted); }
+    .featured-title {
+      font-size: 1.1rem;
+      margin: 0 0 0.25rem;
+    }
 
-    footer { border-top:1px solid var(--border); padding:1rem; font-size:0.8rem; }
-    .footer-inner { max-width:var(--max-width); margin:0 auto; display:flex; flex-direction:column; gap:0.5rem; }
-    .footer-row { display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
+    .post-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
 
-    @media(min-width:768px){
-      .hero-title{font-size:2.4rem;}
-      .section-grid{display:grid;grid-template-columns:2fr 1.3fr;gap:2rem;}
+    .summary-line { font-size: 0.9rem; }
+
+    /* 최근 글 리스트 */
+
+    .post-list, .notice-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .post-item, .notice-item {
+      padding: 0.5rem 0;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .post-item-title { font-weight: 500; }
+    .post-item-meta, .notice-meta { font-size: 0.8rem; color: var(--muted); }
+
+    /* 푸터 */
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1rem;
+      font-size: 0.8rem;
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .hero-title { font-size: 2.4rem; }
+      .section-grid {
+        display: grid;
+        grid-template-columns: 2fr 1.3fr;
+        gap: 2rem;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- 상단 바 -->
   <header>
     <div class="top-bar">
       <div class="brand">STUDY LOG</div>
       <div class="top-actions">
         <a href="editor.html" class="editor-link">✎ 에디터</a>
+        <button class="icon-button menu-toggle" aria-label="메뉴 열기"><span>☰</span></button>
       </div>
     </div>
   </header>
 
+  <!-- 사이드바 -->
+  <div class="sidebar-backdrop"></div>
+  <aside class="sidebar" aria-label="사이드바">
+    <div class="sidebar-header">
+      <span>Menu</span>
+      <button class="icon-button menu-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="sidebar-section">
+      <h3>About</h3>
+      <p>책, 논문, 수업에서 배운 내용을 정리하는 개인/연구 노트입니다.</p>
+    </div>
+    <div class="sidebar-section">
+      <h3>Categories</h3>
+      <ul>
+        <li><a href="#">AI / ML</a></li>
+        <li><a href="#">언어학</a></li>
+        <li><a href="#">문학</a></li>
+        <li><a href="#">철학</a></li>
+        <li><a href="#">역사</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- 메인 -->
   <main>
     <section class="hero">
       <h1 class="hero-title">Daily Study Notes</h1>
@@ -120,79 +378,77 @@
       </div>
     </section>
 
+    <nav class="category-bar">
+      <span class="category-label">Topics</span>
+      <span class="category-link">AI / ML</span>
+      <span class="category-link">언어학</span>
+      <span class="category-link">문학</span>
+      <span class="category-link">철학</span>
+      <span class="category-link">역사</span>
+    </nav>
+
     <section class="section">
       <h2 class="section-title">Today & Updates</h2>
       <div class="section-grid">
         <div>
-          <article class="featured" id="featured-post">
+          <article class="featured">
             <div class="featured-label">오늘의 발제</div>
-            <h3 class="featured-title" id="featured-title">로드 중...</h3>
-            <div class="post-meta" id="featured-meta"></div>
-            <p class="summary-line" id="featured-summary"></p>
+            <h3 class="featured-title">Attention Is All You Need (2017) — 핵심 아이디어 정리</h3>
+            <div class="post-meta">2025-11-10 · AI / 논문 읽기 · 약 7분</div>
+            <p class="summary-line">
+              Self-attention 메커니즘과 인코더-디코더 구조를 중심으로, 기존 RNN 기반 모델과의 차이와 장점을 요약합니다.
+            </p>
           </article>
 
-          <h3 style="font-size:0.9rem;margin:1.25rem 0 0.5rem;text-transform:uppercase;letter-spacing:0.12em;">
-            최근 작성 글
-          </h3>
-          <ul class="post-list" id="recent-posts">
-            <li class="post-item"><span class="post-item-title">불러오는 중...</span></li>
+          <h3 style="font-size:0.9rem;margin:1.25rem 0 0.5rem;text-transform:uppercase;letter-spacing:0.12em;">최근 작성 글</h3>
+          <ul class="post-list">
+            <li class="post-item">
+              <span class="post-item-title">언어 모델의 “의미 이해”는 무엇을 의미하나?</span>
+              <span class="post-item-meta">2025-11-09 · AI, 언어철학 · 6분</span>
+            </li>
+            <li class="post-item">
+              <span class="post-item-title">비트겐슈타인 『철학 탐구』 §1–20 발제</span>
+              <span class="post-item-meta">2025-11-08 · 철학 · 8분</span>
+            </li>
           </ul>
         </div>
 
         <div>
           <h3 style="font-size:0.9rem;margin:0 0 0.5rem;text-transform:uppercase;letter-spacing:0.12em;">공지사항</h3>
-          <ul class="post-list">
-            <li class="post-item"><span>업로드 규칙: 하루 한 편 실험 시작</span><span class="post-item-meta">2025-11-01</span></li>
+          <ul class="notice-list">
+            <li class="notice-item"><span>업로드 규칙: “하루 한 편” 실험 시작</span><span class="notice-meta">2025-11-01 · 블로그 운영</span></li>
+            <li class="notice-item"><span>새 카테고리: “논문 한 장 요약” 추가</span><span class="notice-meta">2025-10-28 · 카테고리 안내</span></li>
           </ul>
         </div>
       </div>
     </section>
   </main>
 
+  <!-- 푸터 -->
   <footer>
     <div class="footer-inner">
       <div class="footer-row">
-        <span>© <span id="year"></span> Study Notes</span>
+        <span>© <span id="year"></span> Study Notes. All rights reserved.</span>
         <span><a href="mailto:you@example.com">you@example.com</a></span>
       </div>
       <div class="footer-row">
         <span>매일 한 편 업로드를 목표로 합니다.</span>
-        <span><a href="#">GitHub Repo</a></span>
+        <span><a href="#">RSS</a> · <a href="#">GitHub Repo</a> · <a href="#">CC BY-NC-SA</a></span>
       </div>
     </div>
   </footer>
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
-
-    async function loadPosts(){
-      try{
-        const res = await fetch("posts/posts.json",{cache:"no-store"});
-        if(!res.ok) return;
-        const posts = await res.json();
-        posts.sort((a,b)=>(b.date||"").localeCompare(a.date||""));
-        const featured = posts[0];
-        const recent = posts.slice(0,5);
-
-        document.getElementById("featured-title").innerHTML =
-          `<a href="${featured.url}">${featured.title}</a>`;
-        document.getElementById("featured-meta").textContent =
-          [featured.date, featured.category].filter(Boolean).join(" · ");
-        document.getElementById("featured-summary").textContent = featured.summary || "";
-
-        const recentList=document.getElementById("recent-posts");
-        recentList.innerHTML="";
-        recent.forEach(p=>{
-          const li=document.createElement("li");
-          li.className="post-item";
-          li.innerHTML=`
-            <span class="post-item-title"><a href="${p.url}">${p.title}</a></span>
-            <span class="post-item-meta">${[p.date,p.category].filter(Boolean).join(" · ")}</span>`;
-          recentList.appendChild(li);
-        });
-      }catch(e){console.error("posts.json 로드 실패",e);}
-    }
-    loadPosts();
+    const sidebar = document.querySelector(".sidebar");
+    const backdrop = document.querySelector(".sidebar-backdrop");
+    const menuToggle = document.querySelector(".menu-toggle");
+    const menuClose = document.querySelector(".menu-close");
+    function openSidebar() { sidebar.classList.add("open"); backdrop.classList.add("visible"); }
+    function closeSidebar() { sidebar.classList.remove("open"); backdrop.classList.remove("visible"); }
+    menuToggle.addEventListener("click", openSidebar);
+    menuClose.addEventListener("click", closeSidebar);
+    backdrop.addEventListener("click", closeSidebar);
   </script>
 </body>
 </html>
