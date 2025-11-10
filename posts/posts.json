@@ -1,1 +1,24 @@
+[
+  {
+    "title": "Attention Is All You Need (2017) — 핵심 아이디어 정리",
+    "date": "2025-11-10",
+    "category": "AI / 논문 읽기",
+    "summary": "Self-attention 메커니즘과 인코더-디코더 구조를 중심으로, 기존 RNN 기반 모델과의 차이와 장점을 요약합니다.",
+    "url": "posts/2025-11-10-attention.html"
+  },
+  {
+    "title": "언어 모델의 “의미 이해”는 무엇을 의미하나?",
+    "date": "2025-11-09",
+    "category": "AI, 언어철학",
+    "summary": "통계적 패턴과 의미 이해를 둘러싼 논쟁을 간단히 정리하고, 활용·한계 지점을 메모합니다.",
+    "url": "posts/2025-11-09-language-model.html"
+  },
+  {
+    "title": "비트겐슈타인 『철학 탐구』 §1–20 발제",
+    "date": "2025-11-08",
+    "category": "철학",
+    "summary": "언어 게임, 규칙, ‘의미는 사용이다’라는 명제를 중심으로 첫 부분을 발제합니다.",
+    "url": "posts/2025-11-08-wittgenstein.html"
+  }
+]
 
