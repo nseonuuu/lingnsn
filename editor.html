@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>발제 에디터 · Study Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --border: #111111;
+      --muted: #666666;
+      --max-width: 1100px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+    h1,h2,h3 { margin-top: 0; }
+    a { color: inherit; text-decoration: none; }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+    }
+    .header-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .brand {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+    }
+    .tagline {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 1.5rem 1rem 2.5rem;
+    }
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    @media (min-width: 900px) {
+      .layout {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .editor-panel { flex: 1.1; }
+      .preview-panel { flex: 1; }
+    }
+    .panel {
+      border: 1px solid var(--border);
+      padding: 1rem;
+    }
+    .panel-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .form-row {
+      margin-bottom: 0.75rem;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.25rem;
+    }
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.5rem;
+      font: inherit;
+      background: #fff;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .note-line {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+    }
+    button {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #f4f4f4;
+    }
+    /* 미리보기 스타일 (단일 글 페이지용) */
+    .post {
+      padding: 0.5rem 0;
+    }
+    .post-title {
+      font-size: 1.5rem;
+      margin: 0 0 0.25rem;
+    }
+    .post-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 0.35rem 0;
+      margin-bottom: 0.75rem;
+    }
+    .post-summary-box {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+    .post-summary-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.25rem;
+      padding-bottom: 0.15rem;
+    }
+    .post-outline {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+    .post-outline-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.25rem;
+    }
+    .post-outline ul {
+      list-style: decimal;
+      padding-left: 1.2rem;
+      margin: 0;
+    }
+    .post-body p {
+      margin: 0 0 0.75rem;
+    }
+    .post-body p:last-child {
+      margin-bottom: 0;
+    }
+    .empty-preview {
+      font-size: 0.85rem;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      padding: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="brand">STUDY NOTES · EDITOR</div>
+        <div class="tagline">하루 한 편 발제용 HTML 생성기</div>
+      </div>
+      <div class="tagline">이 페이지는 업로드하지 말고 로컬에서만 사용해도 좋음</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <!-- 왼쪽: 입력 -->
+      <section class="panel editor-panel">
+        <h2 class="panel-title">발제 정보 입력</h2>
+
+        <div class="form-row">
+          <label for="title">제목</label>
+          <input type="text" id="title" placeholder="예: Attention Is All You Need — 핵심 정리" />
+        </div>
+
+        <div class="form-row" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <div style="flex:1 1 120px;">
+            <label for="date">날짜</label>
+            <input type="date" id="date" />
+          </div>
+          <div style="flex:1 1 120px;">
+            <label for="category">카테고리</label>
+            <select id="category">
+              <option value="">선택 없음</option>
+              <option>AI / ML</option>
+              <option>언어학</option>
+              <option>문학</option>
+              <option>철학</option>
+              <option>역사</option>
+              <option>기타</option>
+            </select>
+          </div>
+          <div style="flex:1 1 120px;">
+            <label for="readingTime">읽기 시간</label>
+            <input type="text" id="readingTime" placeholder="예: 7분" />
+            <div class="note-line">대략적인 분 단위로</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="summary">한 줄 요약</label>
+          <textarea id="summary" placeholder="이 글의 핵심 한 줄 요약을 적어주세요."></textarea>
+        </div>
+
+        <div class="form-row">
+          <label for="outline">주요 내용 개요 (목차 느낌)</label>
+          <textarea id="outline" placeholder="한 줄에 한 항목씩 작성&#10;예) 문제의식&#10;핵심 개념 정리&#10;논의 포인트&#10;남은 질문"></textarea>
+          <div class="note-line">줄바꿈 기준으로 번호 목록이 만들어집니다.</div>
+        </div>
+
+        <div class="form-row">
+          <label for="body">본문 (에세이 / 발제문)</label>
+          <textarea id="body" rows="14" placeholder="여기에 발제문/에세이 본문을 작성하세요.&#10;&#10;빈 줄(두 번의 줄바꿈) 사이를 단락으로 인식합니다."></textarea>
+        </div>
+
+        <div class="button-row">
+          <button id="updatePreviewBtn" type="button">미리보기 업데이트</button>
+          <button id="downloadBtn" type="button">HTML 파일로 저장</button>
+        </div>
+      </section>
+
+      <!-- 오른쪽: 미리보기 -->
+      <section class="panel preview-panel">
+        <h2 class="panel-title">미리보기</h2>
+        <div id="preview">
+          <div class="empty-preview">
+            좌측에 내용을 입력한 뒤<br>
+            <strong>“미리보기 업데이트”</strong>를 누르면 여기에서 글 형태를 확인할 수 있습니다.
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const titleInput = document.getElementById('title');
+    const dateInput = document.getElementById('date');
+    const categoryInput = document.getElementById('category');
+    const readingTimeInput = document.getElementById('readingTime');
+    const summaryInput = document.getElementById('summary');
+    const outlineInput = document.getElementById('outline');
+    const bodyInput = document.getElementById('body');
+    const previewEl = document.getElementById('preview');
+    const updatePreviewBtn = document.getElementById('updatePreviewBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // 오늘 날짜 기본값 설정
+    (function setToday() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      dateInput.value = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+    }
+
+    function buildBodyHtml(text) {
+      // 두 줄 이상 비어 있는 부분을 단락 구분자로 사용
+      const blocks = text.split(/\n\s*\n/);
+      const paragraphs = blocks
+        .map(b => b.trim())
+        .filter(b => b.length > 0)
+        .map(b => `<p>${escapeHtml(b).replace(/\n/g, '<br>')}</p>`);
+      return paragraphs.join('\n');
+    }
+
+    function buildOutlineHtml(text) {
+      const lines = text
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+      if (lines.length === 0) return '';
+      const items = lines.map(l => `<li>${escapeHtml(l)}</li>`).join('\n');
+      return `
+      <div class="post-outline">
+        <div class="post-outline-title">주요 내용 개요</div>
+        <ul>
+          ${items}
+        </ul>
+      </div>`;
+    }
+
+    function buildSummaryBoxHtml(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return '';
+      return `
+      <div class="post-summary-box">
+        <div class="post-summary-label">요약</div>
+        <div>${escapeHtml(trimmed)}</div>
+      </div>`;
+    }
+
+    function buildMetaLine(date, category, readingTime) {
+      const parts = [];
+      if (date) parts.push(date);
+      if (category) parts.push(category);
+      if (readingTime) parts.push(`약 ${readingTime}`);
+      return parts.join(' · ');
+    }
+
+    function buildArticleHtml() {
+      const title = titleInput.value.trim() || '제목 없음';
+      const date = dateInput.value;
+      const category = categoryInput.value;
+      const readingTime = readingTimeInput.value.trim();
+      const summary = summaryInput.value;
+      const outline = outlineInput.value;
+      const body = bodyInput.value;
+
+      const meta = buildMetaLine(date, category, readingTime);
+      const summaryBox = buildSummaryBoxHtml(summary);
+      const outlineBox = buildOutlineHtml(outline);
+      const bodyHtml = buildBodyHtml(body || '');
+
+      return `
+      <article class="post">
+        <header>
+          <h1 class="post-title">${escapeHtml(title)}</h1>
+          <div class="post-meta">${meta || ''}</div>
+        </header>
+        ${summaryBox}
+        ${outlineBox}
+        <section class="post-body">
+          ${bodyHtml || '<p>(본문이 비어 있습니다.)</p>'}
+        </section>
+      </article>`;
+    }
+
+    function buildFullHtmlDocument() {
+      const articleHtml = buildArticleHtml();
+      const title = titleInput.value.trim() || '제목 없음';
+
+      return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>${escapeHtml(title)}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background: #ffffff;
+      color: #111111;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+      border-left: 1px solid #111;
+      border-right: 1px solid #111;
+    }
+    .post-title {
+      font-size: 1.8rem;
+      margin: 0 0 0.25rem;
+    }
+    .post-meta {
+      font-size: 0.8rem;
+      color: #666;
+      border-top: 1px solid #111;
+      border-bottom: 1px solid #111;
+      padding: 0.4rem 0;
+      margin-bottom: 1rem;
+    }
+    .post-summary-box {
+      border: 1px solid #111;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .post-summary-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid #111;
+      margin-bottom: 0.35rem;
+      padding-bottom: 0.2rem;
+    }
+    .post-outline {
+      border-top: 1px solid #111;
+      border-bottom: 1px solid #111;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .post-outline-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.35rem;
+    }
+    .post-outline ul {
+      list-style: decimal;
+      padding-left: 1.2rem;
+      margin: 0;
+    }
+    .post-body p {
+      margin: 0 0 1rem;
+    }
+    .post-body p:last-child {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    ${articleHtml}
+  </main>
+</body>
+</html>`;
+    }
+
+    function updatePreview() {
+      previewEl.innerHTML = buildArticleHtml();
+    }
+
+    function downloadHtml() {
+      const html = buildFullHtmlDocument();
+      const title = titleInput.value.trim();
+      const date = dateInput.value || '';
+      // 파일 이름: YYYY-MM-DD-제목.html (공백은 -로)
+      let baseName = '';
+      if (date) baseName += date + '-';
+      baseName += (title || 'post')
+        .replace(/\s+/g, '-')
+        .replace(/[^0-9a-zA-Z가-힣\-_]/g, '');
+      if (!baseName) baseName = 'post';
+      const fileName = baseName + '.html';
+
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    updatePreviewBtn.addEventListener('click', updatePreview);
+    downloadBtn.addEventListener('click', downloadHtml);
+  </script>
+</body>
+</html>
