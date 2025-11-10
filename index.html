@@ -151,7 +151,7 @@
     .sidebar-section ul {
       list-style: none;
       padding: 0;
-      margin: 0;
+      margin: 0 0 0.5rem;
       font-size: 0.9rem;
     }
 
@@ -161,6 +161,71 @@
 
     .sidebar.open { transform: translateX(0); }
     .sidebar-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+    /* 사이드바 카테고리 버튼 & 글 목록 */
+
+    .sidebar-category-button {
+      border: none;
+      background: transparent;
+      padding: 0;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .sidebar-category-button:hover {
+      text-decoration: underline;
+    }
+
+    .sidebar-category-button.active {
+      font-weight: 600;
+    }
+
+    .sidebar-posts {
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .sidebar-post-card {
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.5rem;
+      text-decoration: none;
+    }
+
+    .sidebar-post-thumb {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-post-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .sidebar-post-title {
+      font-weight: 500;
+    }
+
+    .sidebar-post-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .sidebar-posts-empty {
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 0.5rem;
+    }
 
     /* 메인 레이아웃 */
 
@@ -202,37 +267,39 @@
       gap: 0.25rem;
     }
 
-    /* 카테고리 바 */
+    /* 카테고리 바 (Topics) */
 
     .category-bar {
       border-bottom: 1px solid var(--border);
       padding: 0.5rem 0;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       font-size: 0.85rem;
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
+      align-items: center;
     }
 
     .category-label { font-weight: 600; margin-right: 0.5rem; }
 
-    .category-link {
+    .topic-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .topic-button {
+      border: 1px solid var(--border);
+      background: transparent;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.8rem;
       cursor: pointer;
-      position: relative;
     }
 
-    .category-link::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -0.1rem;
-      width: 0;
-      height: 1px;
-      background: var(--border);
-      transition: width 0.15s ease-out;
+    .topic-button.active {
+      background: #111111;
+      color: #ffffff;
     }
-
-    .category-link:hover::after { width: 100%; }
 
     /* 섹션 */
 
@@ -279,7 +346,7 @@
 
     .summary-line { font-size: 0.9rem; }
 
-    /* 최근 글 리스트 */
+    /* 최근 글 리스트 / 공지 */
 
     .post-list, .notice-list {
       list-style: none;
@@ -358,12 +425,14 @@
     <div class="sidebar-section">
       <h3>Categories</h3>
       <ul>
-        <li><a href="#">AI / ML</a></li>
-        <li><a href="#">언어학</a></li>
-        <li><a href="#">문학</a></li>
-        <li><a href="#">철학</a></li>
-        <li><a href="#">역사</a></li>
+        <li><button type="button" class="sidebar-category-button" data-category="AI / ML">AI / ML</button></li>
+        <li><button type="button" class="sidebar-category-button" data-category="언어학">언어학</button></li>
+        <li><button type="button" class="sidebar-category-button" data-category="문학">문학</button></li>
+        <li><button type="button" class="sidebar-category-button" data-category="철학">철학</button></li>
+        <li><button type="button" class="sidebar-category-button" data-category="역사">역사</button></li>
       </ul>
+      <!-- 사이드바 카테고리 글 목록 출력 영역 -->
+      <div id="sidebar-category-posts" class="sidebar-posts"></div>
     </div>
   </aside>
 
@@ -378,15 +447,28 @@
       </div>
     </section>
 
+    <!-- Topics 버튼 & 필터 -->
     <nav class="category-bar">
       <span class="category-label">Topics</span>
-      <span class="category-link">AI / ML</span>
-      <span class="category-link">언어학</span>
-      <span class="category-link">문학</span>
-      <span class="category-link">철학</span>
-      <span class="category-link">역사</span>
+      <div class="topic-buttons">
+        <button type="button" class="topic-button active" data-category="all">전체</button>
+        <button type="button" class="topic-button" data-category="AI / ML">AI / ML</button>
+        <button type="button" class="topic-button" data-category="언어학">언어학</button>
+        <button type="button" class="topic-button" data-category="문학">문학</button>
+        <button type="button" class="topic-button" data-category="철학">철학</button>
+        <button type="button" class="topic-button" data-category="역사">역사</button>
+      </div>
     </nav>
 
+    <!-- Topics 아래 글 리스트 (최신 5개) -->
+    <section class="section" id="topics-section">
+      <h2 class="section-title">글 목록</h2>
+      <ul class="post-list" id="topics-post-list">
+        <!-- posts.json에서 동적으로 채워짐 -->
+      </ul>
+    </section>
+
+    <!-- 기존 Today & Updates 섹션은 그대로 유지 -->
     <section class="section">
       <h2 class="section-title">Today & Updates</h2>
       <div class="section-grid">
@@ -439,6 +521,7 @@
   </footer>
 
   <script>
+    // 푸터 연도 & 사이드바 토글
     document.getElementById("year").textContent = new Date().getFullYear();
     const sidebar = document.querySelector(".sidebar");
     const backdrop = document.querySelector(".sidebar-backdrop");
@@ -449,6 +532,196 @@
     menuToggle.addEventListener("click", openSidebar);
     menuClose.addEventListener("click", closeSidebar);
     backdrop.addEventListener("click", closeSidebar);
+
+    // 글 데이터 로딩 & 렌더링
+    const TOPIC_ALL = "all";
+    let postsData = [];
+
+    function getSortedPosts() {
+      return postsData
+        .slice()
+        .sort((a, b) => {
+          const da = new Date(a.date || 0);
+          const db = new Date(b.date || 0);
+          return db - da;
+        });
+    }
+
+    function filterPostsByCategory(category) {
+      const sorted = getSortedPosts();
+      if (!category || category === TOPIC_ALL) return sorted;
+      return sorted.filter(post => post.category === category);
+    }
+
+    // Topics 아래 글 리스트 렌더링 (최신 5개)
+    function renderTopicPosts(category) {
+      const listEl = document.getElementById("topics-post-list");
+      if (!listEl) return;
+      listEl.innerHTML = "";
+
+      if (!postsData.length) {
+        const li = document.createElement("li");
+        li.className = "post-item";
+        li.textContent = "불러온 글이 없습니다. posts/posts.json을 확인하세요.";
+        listEl.appendChild(li);
+        return;
+      }
+
+      const posts = filterPostsByCategory(category).slice(0, 5);
+      if (!posts.length) {
+        const li = document.createElement("li");
+        li.className = "post-item";
+        li.textContent = "이 토픽에 해당하는 글이 아직 없습니다.";
+        listEl.appendChild(li);
+        return;
+      }
+
+      posts.forEach(post => {
+        const li = document.createElement("li");
+        li.className = "post-item";
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "post-item-title";
+        const link = document.createElement("a");
+        link.href = post.url || post.link || "#";
+        link.textContent = post.title || "제목 없음";
+        titleSpan.appendChild(link);
+
+        const metaSpan = document.createElement("span");
+        metaSpan.className = "post-item-meta";
+        const parts = [];
+        if (post.date) parts.push(post.date);
+        if (post.category) parts.push(post.category);
+        if (post.readingTime) parts.push(post.readingTime);
+        metaSpan.textContent = parts.join(" · ");
+
+        li.appendChild(titleSpan);
+        li.appendChild(metaSpan);
+        listEl.appendChild(li);
+      });
+    }
+
+    // Topics 버튼 active 처리
+    function setActiveTopicButton(activeCategory) {
+      document.querySelectorAll(".topic-button").forEach(btn => {
+        if (btn.dataset.category === activeCategory) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function setupTopicButtons() {
+      document.querySelectorAll(".topic-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const category = btn.dataset.category || TOPIC_ALL;
+          setActiveTopicButton(category);
+          renderTopicPosts(category);
+        });
+      });
+      setActiveTopicButton(TOPIC_ALL);
+    }
+
+    // 사이드바 카테고리 글 목록 렌더링
+    function renderSidebarCategoryPosts(category) {
+      const container = document.getElementById("sidebar-category-posts");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (!postsData.length) {
+        const empty = document.createElement("div");
+        empty.className = "sidebar-posts-empty";
+        empty.textContent = "불러온 글이 없습니다. posts/posts.json을 확인하세요.";
+        container.appendChild(empty);
+        return;
+      }
+
+      const posts = filterPostsByCategory(category);
+      if (!posts.length) {
+        const empty = document.createElement("div");
+        empty.className = "sidebar-posts-empty";
+        empty.textContent = "이 카테고리의 글이 아직 없습니다.";
+        container.appendChild(empty);
+        return;
+      }
+
+      // 너무 길어지지 않도록 최대 10개만 표시
+      posts.slice(0, 10).forEach(post => {
+        const card = document.createElement("a");
+        card.className = "sidebar-post-card";
+        card.href = post.url || post.link || "#";
+
+        if (post.thumbnail) {
+          const img = document.createElement("img");
+          img.className = "sidebar-post-thumb";
+          img.src = post.thumbnail;
+          img.alt = (post.title || "") + " 썸네일";
+          card.appendChild(img);
+        }
+
+        const info = document.createElement("div");
+        info.className = "sidebar-post-info";
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "sidebar-post-title";
+        titleEl.textContent = post.title || "제목 없음";
+
+        const metaEl = document.createElement("div");
+        metaEl.className = "sidebar-post-meta";
+        const parts = [];
+        if (post.date) parts.push(post.date);
+        if (post.readingTime) parts.push(post.readingTime);
+        metaEl.textContent = parts.join(" · ");
+
+        info.appendChild(titleEl);
+        info.appendChild(metaEl);
+        card.appendChild(info);
+
+        container.appendChild(card);
+      });
+    }
+
+    function setActiveSidebarCategoryButton(activeCategory) {
+      document.querySelectorAll(".sidebar-category-button").forEach(btn => {
+        if (btn.dataset.category === activeCategory) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function setupSidebarCategoryButtons() {
+      document.querySelectorAll(".sidebar-category-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const category = btn.dataset.category;
+          setActiveSidebarCategoryButton(category);
+          renderSidebarCategoryPosts(category);
+        });
+      });
+    }
+
+    // posts.json 로드
+    function initPosts() {
+      fetch("posts/posts.json")
+        .then(response => response.json())
+        .then(data => {
+          // 배열 또는 { posts: [...] } 둘 다 대응
+          postsData = Array.isArray(data) ? data : (data.posts || []);
+          if (!Array.isArray(postsData)) postsData = [];
+          renderTopicPosts(TOPIC_ALL); // 데이터 로드 후 다시 렌더
+        })
+        .catch(error => {
+          console.error("posts.json 로드 실패:", error);
+        });
+    }
+
+    // 초기화
+    setupTopicButtons();
+    setupSidebarCategoryButtons();
+    renderTopicPosts(TOPIC_ALL); // 데이터 로딩 전 기본 메시지
+    initPosts();
   </script>
 </body>
 </html>
