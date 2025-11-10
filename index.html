@@ -1,154 +1,454 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <title>나의 GitHub 블로그</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<head>
+  <meta charset="UTF-8" />
+  <title>공부 노트 블로그</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #666666;
+      --border: #111111;
+      --max-width: 900px;
+    }
 
-    <!-- Bootstrap CSS CDN -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous"
-    />
+    * { box-sizing: border-box; }
 
-    <!-- 선택: 내 커스텀 스타일 -->
-    <link rel="stylesheet" href="assets/css/style.css" />
-  </head>
-  <body class="bg-light">
-    <!-- 상단 네비게이션 바 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container">
-        <a class="navbar-brand" href="#">나의 블로그</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-          data-bs-target="#navbarNav" aria-controls="navbarNav"
-          aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link active" href="#">홈</a>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* 상단 바 */
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(6px);
+      z-index: 20;
+    }
+
+    .top-bar {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-button {
+      border: 1px solid var(--border);
+      background: transparent;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-button span {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    /* ✎ 에디터 버튼 */
+
+    .editor-link {
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+
+    .editor-link:hover {
+      background: #f4f4f4;
+    }
+
+    /* 사이드바 */
+
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-out;
+      z-index: 29;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 260px;
+      max-width: 80%;
+      height: 100vh;
+      background: var(--bg);
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform 0.2s ease-out;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .sidebar-section {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-section h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .sidebar-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-section li + li {
+      margin-top: 0.25rem;
+    }
+
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+    /* 메인 레이아웃 */
+
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+    }
+
+    /* 대문(히어로) */
+
+    .hero {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-title {
+      font-size: 2rem;
+      margin: 0 0 0.25rem;
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin: 0 0 1rem;
+    }
+
+    .hero-meta {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    /* 카테고리 바 */
+
+    .category-bar {
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 0;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .category-label { font-weight: 600; margin-right: 0.5rem; }
+
+    .category-link {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .category-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.1rem;
+      width: 0;
+      height: 1px;
+      background: var(--border);
+      transition: width 0.15s ease-out;
+    }
+
+    .category-link:hover::after { width: 100%; }
+
+    /* 섹션 */
+
+    .section {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0 0 0.75rem;
+    }
+
+    /* 오늘의 발제 */
+
+    .featured {
+      border: 1px solid var(--border);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .featured-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .featured-title {
+      font-size: 1.1rem;
+      margin: 0 0 0.25rem;
+    }
+
+    .post-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-line { font-size: 0.9rem; }
+
+    /* 최근 글 리스트 */
+
+    .post-list, .notice-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .post-item, .notice-item {
+      padding: 0.5rem 0;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .post-item-title { font-weight: 500; }
+    .post-item-meta, .notice-meta { font-size: 0.8rem; color: var(--muted); }
+
+    /* 푸터 */
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1rem;
+      font-size: 0.8rem;
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .hero-title { font-size: 2.4rem; }
+      .section-grid {
+        display: grid;
+        grid-template-columns: 2fr 1.3fr;
+        gap: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단 바 -->
+  <header>
+    <div class="top-bar">
+      <div class="brand">STUDY LOG</div>
+      <div class="top-actions">
+        <a href="editor.html" class="editor-link">✎ 에디터</a>
+        <button class="icon-button menu-toggle" aria-label="메뉴 열기"><span>☰</span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 사이드바 -->
+  <div class="sidebar-backdrop"></div>
+  <aside class="sidebar" aria-label="사이드바">
+    <div class="sidebar-header">
+      <span>Menu</span>
+      <button class="icon-button menu-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="sidebar-section">
+      <h3>About</h3>
+      <p>책, 논문, 수업에서 배운 내용을 정리하는 개인/연구 노트입니다.</p>
+    </div>
+    <div class="sidebar-section">
+      <h3>Categories</h3>
+      <ul>
+        <li><a href="#">AI / ML</a></li>
+        <li><a href="#">언어학</a></li>
+        <li><a href="#">문학</a></li>
+        <li><a href="#">철학</a></li>
+        <li><a href="#">역사</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- 메인 -->
+  <main>
+    <section class="hero">
+      <h1 class="hero-title">Daily Study Notes</h1>
+      <p class="hero-subtitle">AI · 언어학 · 문학 · 철학 · 역사 — 읽고, 요약하고, 다시 생각하기.</p>
+      <div class="hero-meta">
+        <span>Reading · Writing · Thinking</span>
+        <span>하루 한 편 발제 노트</span>
+      </div>
+    </section>
+
+    <nav class="category-bar">
+      <span class="category-label">Topics</span>
+      <span class="category-link">AI / ML</span>
+      <span class="category-link">언어학</span>
+      <span class="category-link">문학</span>
+      <span class="category-link">철학</span>
+      <span class="category-link">역사</span>
+    </nav>
+
+    <section class="section">
+      <h2 class="section-title">Today & Updates</h2>
+      <div class="section-grid">
+        <div>
+          <article class="featured">
+            <div class="featured-label">오늘의 발제</div>
+            <h3 class="featured-title">Attention Is All You Need (2017) — 핵심 아이디어 정리</h3>
+            <div class="post-meta">2025-11-10 · AI / 논문 읽기 · 약 7분</div>
+            <p class="summary-line">
+              Self-attention 메커니즘과 인코더-디코더 구조를 중심으로, 기존 RNN 기반 모델과의 차이와 장점을 요약합니다.
+            </p>
+          </article>
+
+          <h3 style="font-size:0.9rem;margin:1.25rem 0 0.5rem;text-transform:uppercase;letter-spacing:0.12em;">최근 작성 글</h3>
+          <ul class="post-list">
+            <li class="post-item">
+              <span class="post-item-title">언어 모델의 “의미 이해”는 무엇을 의미하나?</span>
+              <span class="post-item-meta">2025-11-09 · AI, 언어철학 · 6분</span>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#posts">글 목록</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="https://github.com/사용자이름">GitHub</a>
+            <li class="post-item">
+              <span class="post-item-title">비트겐슈타인 『철학 탐구』 §1–20 발제</span>
+              <span class="post-item-meta">2025-11-08 · 철학 · 8분</span>
             </li>
           </ul>
         </div>
-      </div>
-    </nav>
 
-    <!-- 히어로 섹션 -->
-    <header class="py-5 bg-white border-bottom">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-md-8">
-            <h1 class="display-5 fw-bold mb-3">안녕하세요 👋</h1>
-            <p class="lead text-muted">
-              이것은 GitHub Pages로 만든 나의 첫 블로그입니다.
-              개발 공부 기록, 일상, 메모 등을 자유롭게 올려볼 거예요.
-            </p>
-            <a href="#posts" class="btn btn-primary btn-lg">
-              최근 글 보러가기
-            </a>
-          </div>
-          <div class="col-md-4 text-md-end mt-4 mt-md-0">
-            <span class="badge bg-primary-subtle text-primary-emphasis">
-              new
-            </span>
-            <p class="mt-2 mb-0 text-muted">
-              GitHub로 버전 관리도 함께!
-            </p>
-          </div>
+        <div>
+          <h3 style="font-size:0.9rem;margin:0 0 0.5rem;text-transform:uppercase;letter-spacing:0.12em;">공지사항</h3>
+          <ul class="notice-list">
+            <li class="notice-item"><span>업로드 규칙: “하루 한 편” 실험 시작</span><span class="notice-meta">2025-11-01 · 블로그 운영</span></li>
+            <li class="notice-item"><span>새 카테고리: “논문 한 장 요약” 추가</span><span class="notice-meta">2025-10-28 · 카테고리 안내</span></li>
+          </ul>
         </div>
       </div>
-    </header>
+    </section>
+  </main>
 
-    <!-- 메인 컨텐츠 영역 -->
-    <main class="py-5">
-      <div class="container">
-        <div class="row">
-          <!-- 글 목록 -->
-          <div class="col-lg-8" id="posts">
-            <h2 class="h4 mb-4">최근 글</h2>
-
-            <!-- 글 카드 하나 -->
-            <article class="card mb-4 shadow-sm border-0">
-              <div class="card-body">
-                <a href="posts/examplepost.html" class="text-decoration-none">
-                  <h3 class="card-title h5 mb-2">
-                    첫 번째 글: GitHub 블로그 시작하기
-                  </h3>
-                </a>
-                <p class="card-text text-muted small mb-1">
-                  2025-11-10 · 카테고리: 개발
-                </p>
-                <p class="card-text text-muted">
-                  GitHub Pages와 Bootstrap으로 간단한 블로그를 만들어 봅니다.
-                  저장소 생성부터 기본 레이아웃까지 순서대로 정리해볼게요.
-                </p>
-                <a href="posts/examplepost.html" class="btn btn-sm btn-outline-primary">
-                  계속 읽기 →
-                </a>
-              </div>
-            </article>
-
-            <!-- 여기 밑으로 같은 형식의 카드들을 복사해서 추가하면 됨 -->
-          </div>
-
-          <!-- 사이드바 -->
-          <aside class="col-lg-4 mt-4 mt-lg-0">
-            <div class="card mb-4">
-              <div class="card-body">
-                <h2 class="h5">소개</h2>
-                <p class="text-muted mb-0">
-                  안녕하세요, OO입니다.  
-                  웹 개발과 일상에 대한 간단한 기록을 남기고 있어요.
-                </p>
-              </div>
-            </div>
-
-            <div class="card mb-4">
-              <div class="card-body">
-                <h2 class="h6">카테고리</h2>
-                <ul class="list-unstyled mb-0">
-                  <li><a href="#" class="link-secondary">개발</a></li>
-                  <li><a href="#" class="link-secondary">일상</a></li>
-                  <li><a href="#" class="link-secondary">메모</a></li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-body">
-                <h2 class="h6">링크</h2>
-                <ul class="list-unstyled mb-0">
-                  <li><a href="https://github.com/사용자이름" class="link-secondary">GitHub</a></li>
-                  <li><a href="#" class="link-secondary">Twitter</a></li>
-                </ul>
-              </div>
-            </div>
-          </aside>
-        </div>
+  <!-- 푸터 -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-row">
+        <span>© <span id="year"></span> Study Notes. All rights reserved.</span>
+        <span><a href="mailto:you@example.com">you@example.com</a></span>
       </div>
-    </main>
-
-    <!-- 푸터 -->
-    <footer class="py-4 bg-dark text-light">
-      <div class="container text-center small">
-        &copy; 2025 나의 블로그 · Powered by GitHub Pages & Bootstrap
+      <div class="footer-row">
+        <span>매일 한 편 업로드를 목표로 합니다.</span>
+        <span><a href="#">RSS</a> · <a href="#">GitHub Repo</a> · <a href="#">CC BY-NC-SA</a></span>
       </div>
-    </footer>
+    </div>
+  </footer>
 
-    <!-- Bootstrap JS (선택) – 네비게이션 토글 등에 필요 -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    const sidebar = document.querySelector(".sidebar");
+    const backdrop = document.querySelector(".sidebar-backdrop");
+    const menuToggle = document.querySelector(".menu-toggle");
+    const menuClose = document.querySelector(".menu-close");
+    function openSidebar() { sidebar.classList.add("open"); backdrop.classList.add("visible"); }
+    function closeSidebar() { sidebar.classList.remove("open"); backdrop.classList.remove("visible"); }
+    menuToggle.addEventListener("click", openSidebar);
+    menuClose.addEventListener("click", closeSidebar);
+    backdrop.addEventListener("click", closeSidebar);
+  </script>
+</body>
 </html>
