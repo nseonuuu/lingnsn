@@ -2,195 +2,365 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cognitive Frame - 홈</title>
-  <link rel="stylesheet" href="styles/styles.css"/>
+  <title>공부 노트 블로그</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- SEO / 메타 -->
+  <meta name="description" content="AI, 언어학, 문학, 철학, 역사 공부 노트. 논문, 책, 수업 내용을 매일 한 편씩 정리하는 개인/연구 노트 블로그입니다." />
+  <meta property="og:title" content="공부 노트 블로그 | Study Notes" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="AI · 언어학 · 문학 · 철학 · 역사 — 읽고, 요약하고, 다시 생각하기. 하루 한 편 발제 노트." />
+
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-
-<header class="header">
-  <div class="header-left">
-    <a href="index.html" class="logo">CognitiveFrame</a>
-    <a href="editor.html" class="editor-link">✎ 에디터</a>
-  </div>
-  <button class="menu-button" aria-label="메뉴 열기" aria-expanded="false">☰</button>
-</header>
-
-<!-- 사이드바 -->
-<aside class="sidebar">
-  <nav class="sidebar-nav">
-    <ul>
-      <li><span class="sidebar-section-title">About</span></li>
-      <li><a href="about.html">우리의 목표</a></li>
-    </ul>
-
-    <ul>
-      <li><span class="sidebar-section-title">Categories</span></li>
-      <li><button class="sidebar-category-button" data-category="ai-ml">AI / ML</button></li>
-      <li><button class="sidebar-category-button" data-category="linguistics">언어학</button></li>
-      <li><button class="sidebar-category-button" data-category="literature">문학</button></li>
-      <li><button class="sidebar-category-button" data-category="philosophy">철학</button></li>
-      <li><button class="sidebar-category-button" data-category="history">역사</button></li>
-    </ul>
-
-    <ul>
-      <li><span class="sidebar-section-title">Posts</span></li>
-      <li><div id="sidebar-posts-list" class="sidebar-posts-list"></div></li>
-    </ul>
-  </nav>
-</aside>
-
-<!-- 본문 영역 -->
-<main class="container">
-  <section class="hero">
-    <h1 class="hero-title">Cognitive Frame</h1>
-    <p class="hero-subtitle">AI — Cognitive Science — Language — Humanities</p>
-    <p class="hero-meta">지식의 구조와 인식의 프레임을 탐구합니다.</p>
-  </section>
-
-  <section>
-    <h2 class="section-title">Topics</h2>
-
-    <div class="topics">
-      <button type="button" class="topic-button active" data-category="all">전체</button>
-      <button type="button" class="topic-button" data-category="ai-ml">AI / ML</button>
-      <button type="button" class="topic-button" data-category="linguistics">언어학</button>
-      <button type="button" class="topic-button" data-category="literature">문학</button>
-      <button type="button" class="topic-button" data-category="philosophy">철학</button>
-      <button type="button" class="topic-button" data-category="history">역사</button>
+  <!-- 상단 바 -->
+  <header>
+    <div class="top-bar">
+      <div class="brand">STUDY LOG</div>
+      <div class="top-actions">
+        <a href="editor.html" class="editor-link">✎ 에디터</a>
+        <button class="icon-button menu-toggle" aria-label="메뉴 열기">
+          <span aria-hidden="true">☰</span>
+        </button>
+      </div>
     </div>
+  </header>
 
-    <ul id="posts-list" class="posts-list"></ul>
-  </section>
-
-  <section class="today-updates">
-    <h2 class="section-title">Today & Updates</h2>
-
-    <div class="today-card">
-      <h3 class="card-title">Today’s Insight</h3>
-      <p>오늘의 발제는 AI 모델의 수학적 표현 구조입니다.</p>
+  <!-- 사이드바 -->
+  <div class="sidebar-backdrop"></div>
+  <aside class="sidebar" aria-label="사이드바">
+    <div class="sidebar-header">
+      <span>Menu</span>
+      <button class="icon-button menu-close" aria-label="닫기">✕</button>
     </div>
-
-    <div class="recent-card">
-      <h3 class="card-title">Recent Posts</h3>
-      <p>최근 작성된 글을 주기적으로 업데이트합니다.</p>
+    <div class="sidebar-section">
+      <h3>About</h3>
+      <p>책, 논문, 수업에서 배운 내용을 정리하는 개인/연구 노트입니다.</p>
     </div>
-
-    <div class="notice-card">
-      <h3 class="card-title">Notice</h3>
-      <p>이 블로그는 실험적 글쓰기 프레임워크입니다.</p>
+    <div class="sidebar-section">
+      <h3>Categories</h3>
+      <ul>
+        <li><button type="button" class="sidebar-category-button" data-category="AI / ML">AI / ML</button></li>
+        <li><button type="button" class="sidebar-category-button" data-category="linguistics">언어학</button></li>
+        <li><button type="button" class="sidebar-category-button" data-category="literature">문학</button></li>
+        <li><button type="button" class="sidebar-category-button" data-category="philosophy">철학</button></li>
+        <li><button type="button" class="sidebar-category-button" data-category="history">역사</button></li>
+      </ul>
     </div>
-  </section>
-</main>
+    <!-- 사이드바 카테고리 글 목록 출력 영역 -->
+    <div id="sidebar-category-posts" class="sidebar-posts"></div>
+  </aside>
 
-<!-- 자바스크립트 -->
-<script>
-  const TOPIC_ALL = "all";
-  let postsData = [];
+  <!-- 메인 -->
+  <main>
+    <section class="hero">
+      <h1 class="hero-title">Daily Study Notes</h1>
+      <p class="hero-subtitle">AI · 언어학 · 문학 · 철학 · 역사 — 읽고, 요약하고, 다시 생각하기.</p>
+      <div class="hero-meta">
+        <span>Reading · Writing · Thinking</span>
+        <span>하루 한 편 발제 노트</span>
+      </div>
+    </section>
 
-  document.addEventListener("DOMContentLoaded", () => {
-    setupMenu();
+    <!-- Topics 버튼 & 필터 -->
+    <nav class="category-bar" aria-label="글 카테고리">
+      <span class="category-label">Topics</span>
+      <div class="topic-buttons">
+        <button type="button" class="topic-button active" data-category="all">전체</button>
+        <!-- data-category를 "AI / ML"로 통일 -->
+        <button type="button" class="topic-button" data-category="AI / ML">AI / ML</button>
+        <button type="button" class="topic-button" data-category="linguistics">언어학</button>
+        <button type="button" class="topic-button" data-category="literature">문학</button>
+        <button type="button" class="topic-button" data-category="philosophy">철학</button>
+        <button type="button" class="topic-button" data-category="history">역사</button>
+      </div>
+    </nav>
+
+    <!-- Topics 아래 글 리스트 (최신 5개) -->
+    <section class="section" id="topics-section">
+      <h2 class="section-title">글 목록</h2>
+      <ul class="post-list" id="topics-post-list">
+        <!-- posts.json에서 동적으로 채워짐 -->
+      </ul>
+    </section>
+
+    <!-- Today & Updates 섹션 -->
+    <section class="section">
+      <h2 class="section-title">Today & Updates</h2>
+      <div class="section-grid">
+        <div>
+          <article class="featured">
+            <div class="featured-label">오늘의 발제</div>
+            <h3 class="featured-title">Attention Is All You Need (2017) — 핵심 아이디어 정리</h3>
+            <div class="post-meta">2025-11-10 · AI / 논문 읽기 · 약 7분</div>
+            <p class="summary-line">
+              Self-attention 메커니즘과 인코더-디코더 구조를 중심으로, 기존 RNN 기반 모델과의 차이와 장점을 요약합니다.
+            </p>
+          </article>
+
+          <h3 class="section-subheading section-subheading--spaced">최근 작성 글</h3>
+          <ul class="post-list">
+            <li class="post-item">
+              <span class="post-item-title">언어 모델의 “의미 이해”는 무엇을 의미하나?</span>
+              <span class="post-item-meta">2025-11-09 · AI, 언어철학 · 6분</span>
+            </li>
+            <li class="post-item">
+              <span class="post-item-title">비트겐슈타인 『철학 탐구』 §1–20 발제</span>
+              <span class="post-item-meta">2025-11-08 · 철학 · 8분</span>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="section-subheading">공지사항</h3>
+          <ul class="notice-list">
+            <li class="notice-item">
+              <span>업로드 규칙: “하루 한 편” 실험 시작</span>
+              <span class="notice-meta">2025-11-01 · 블로그 운영</span>
+            </li>
+            <li class="notice-item">
+              <span>새 카테고리: “논문 한 장 요약” 추가</span>
+              <span class="notice-meta">2025-10-28 · 카테고리 안내</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 푸터 -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-row">
+        <span>© <span id="year"></span> Study Notes. All rights reserved.</span>
+        <span><a href="mailto:you@example.com">you@example.com</a></span>
+      </div>
+      <div class="footer-row">
+        <span>매일 한 편 업로드를 목표로 합니다.</span>
+        <span><a href="#">RSS</a> · <a href="#">GitHub Repo</a> · <a href="#">CC BY-NC-SA</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 푸터 연도 & 사이드바 토글
+    document.getElementById("year").textContent = new Date().getFullYear();
+    const sidebar = document.querySelector(".sidebar");
+    const backdrop = document.querySelector(".sidebar-backdrop");
+    const menuToggle = document.querySelector(".menu-toggle");
+    const menuClose = document.querySelector(".menu-close");
+
+    function openSidebar() {
+      sidebar.classList.add("open");
+      backdrop.classList.add("visible");
+    }
+    function closeSidebar() {
+      sidebar.classList.remove("open");
+      backdrop.classList.remove("visible");
+    }
+    menuToggle.addEventListener("click", openSidebar);
+    menuClose.addEventListener("click", closeSidebar);
+    backdrop.addEventListener("click", closeSidebar);
+
+    // 글 데이터 로딩 & 렌더링
+    const TOPIC_ALL = "all";
+    let postsData = [];
+
+    function getSortedPosts() {
+      return postsData
+        .slice()
+        .sort((a, b) => {
+          const da = new Date(a.date || 0);
+          const db = new Date(b.date || 0);
+          return db - da;
+        });
+    }
+
+    function filterPostsByCategory(category) {
+      const sorted = getSortedPosts();
+      if (!category || category === TOPIC_ALL) return sorted;
+      return sorted.filter(post => post.category === category);
+    }
+
+    // Topics 아래 글 리스트 렌더링 (최신 5개)
+    function renderTopicPosts(category) {
+      const listEl = document.getElementById("topics-post-list");
+      if (!listEl) return;
+      listEl.innerHTML = "";
+
+      if (!postsData.length) {
+        const li = document.createElement("li");
+        li.className = "post-item";
+        li.textContent = "불러온 글이 없습니다. posts/posts.json을 확인하세요.";
+        listEl.appendChild(li);
+        return;
+      }
+
+      const posts = filterPostsByCategory(category).slice(0, 5);
+      if (!posts.length) {
+        const li = document.createElement("li");
+        li.className = "post-item";
+        li.textContent = "이 토픽에 해당하는 글이 아직 없습니다.";
+        listEl.appendChild(li);
+        return;
+      }
+
+      posts.forEach(post => {
+        const li = document.createElement("li");
+        li.className = "post-item";
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "post-item-title";
+        const link = document.createElement("a");
+        link.href = post.url || post.link || "#";
+        link.textContent = post.title || "제목 없음";
+        titleSpan.appendChild(link);
+
+        const metaSpan = document.createElement("span");
+        metaSpan.className = "post-item-meta";
+        const parts = [];
+        if (post.date) parts.push(post.date);
+        if (post.category) parts.push(post.category);
+        if (post.readingTime) parts.push(post.readingTime);
+        metaSpan.textContent = parts.join(" · ");
+
+        li.appendChild(titleSpan);
+        li.appendChild(metaSpan);
+        listEl.appendChild(li);
+      });
+    }
+
+    // Topics 버튼 active 처리
+    function setActiveTopicButton(activeCategory) {
+      document.querySelectorAll(".topic-button").forEach(btn => {
+        if (btn.dataset.category === activeCategory) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function setupTopicButtons() {
+      document.querySelectorAll(".topic-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const category = btn.dataset.category || TOPIC_ALL;
+          setActiveTopicButton(category);
+          renderTopicPosts(category);
+        });
+      });
+      setActiveTopicButton(TOPIC_ALL);
+    }
+
+    // 사이드바 카테고리 글 목록 렌더링 (현재는 카테고리 페이지로 이동)
+    function renderSidebarCategoryPosts(category) {
+      const container = document.getElementById("sidebar-category-posts");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (!postsData.length) {
+        const empty = document.createElement("div");
+        empty.className = "sidebar-posts-empty";
+        empty.textContent = "불러온 글이 없습니다. posts/posts.json을 확인하세요.";
+        container.appendChild(empty);
+        return;
+      }
+
+      const posts = filterPostsByCategory(category);
+      if (!posts.length) {
+        const empty = document.createElement("div");
+        empty.className = "sidebar-posts-empty";
+        empty.textContent = "이 카테고리의 글이 아직 없습니다.";
+        container.appendChild(empty);
+        return;
+      }
+
+      // 너무 길어지지 않도록 최대 10개만 표시
+      posts.slice(0, 10).forEach(post => {
+        const card = document.createElement("a");
+        card.className = "sidebar-post-card";
+        card.href = post.url || post.link || "#";
+
+        if (post.thumbnail) {
+          const img = document.createElement("img");
+          img.className = "sidebar-post-thumb";
+          img.src = post.thumbnail;
+          img.alt = (post.title || "") + " 썸네일";
+          card.appendChild(img);
+        }
+
+        const info = document.createElement("div");
+        info.className = "sidebar-post-info";
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "sidebar-post-title";
+        titleEl.textContent = post.title || "제목 없음";
+
+        const metaEl = document.createElement("div");
+        metaEl.className = "sidebar-post-meta";
+        const parts = [];
+        if (post.date) parts.push(post.date);
+        if (post.readingTime) parts.push(post.readingTime);
+        metaEl.textContent = parts.join(" · ");
+
+        info.appendChild(titleEl);
+        info.appendChild(metaEl);
+        card.appendChild(info);
+
+        container.appendChild(card);
+      });
+    }
+
+    function setActiveSidebarCategoryButton(activeCategory) {
+      document.querySelectorAll(".sidebar-category-button").forEach(btn => {
+        if (btn.dataset.category === activeCategory) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function setupSidebarCategoryButtons() {
+      document.querySelectorAll(".sidebar-category-button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const category = btn.dataset.category;
+          const filename = "category-" + encodeURIComponent(category) + ".html";
+          // categories 폴더로 경로 지정
+          window.location.href = "categories/" + filename;
+        });
+      });
+    }
+
+    // posts.json 로드
+    function initPosts() {
+      fetch("posts/posts.json")
+        .then(response => response.json())
+        .then(data => {
+          // 배열 또는 { posts: [...] } 둘 다 대응 (조금 더 안전하게)
+          if (Array.isArray(data)) {
+            postsData = data;
+          } else if (Array.isArray(data?.posts)) {
+            postsData = data.posts;
+          } else {
+            postsData = [];
+          }
+          renderTopicPosts(TOPIC_ALL); // 데이터 로드 후 다시 렌더
+        })
+        .catch(error => {
+          console.error("posts.json 로드 실패:", error);
+          postsData = [];
+          renderTopicPosts(TOPIC_ALL);
+          alert("게시글 데이터를 불러오지 못했습니다. posts/posts.json 파일을 확인해주세요.");
+        });
+    }
+
+    // 초기화
     setupTopicButtons();
     setupSidebarCategoryButtons();
-    renderTopicPosts(TOPIC_ALL);
+    renderTopicPosts(TOPIC_ALL); // 데이터 로딩 전 기본 메시지
     initPosts();
-  });
-
-  function setupMenu() {
-    const menuButton = document.querySelector(".menu-button");
-    const sidebar = document.querySelector(".sidebar");
-
-    menuButton.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      const expanded = sidebar.classList.contains("open");
-      menuButton.setAttribute("aria-expanded", expanded);
-    });
-  }
-
-  function initPosts() {
-    fetch("posts/posts.json")
-      .then(res => res.json())
-      .then(data => {
-        postsData = Array.isArray(data) ? data : [];
-        renderSidebarCategoryPosts("ai-ml");
-        renderTopicPosts(TOPIC_ALL);
-      })
-      .catch(error => {
-        console.error("posts.json 로드 실패:", error);
-        postsData = [];
-        renderTopicPosts(TOPIC_ALL);
-        renderSidebarCategoryPosts("ai-ml");
-      });
-  }
-
-  /* ---- 정렬 & 필터 ---- */
-  function getSortedPosts() {
-    return [...postsData].sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
-
-  function filterPostsByCategory(category) {
-    const sorted = getSortedPosts();
-    if (!category || category === TOPIC_ALL) return sorted;
-    return sorted.filter(post => post.category === category);
-  }
-
-  /* ---- 메인 토픽 렌더 ---- */
-  function renderTopicPosts(category = TOPIC_ALL) {
-    const list = document.getElementById("posts-list");
-    const filtered = filterPostsByCategory(category);
-
-    if (!filtered.length) {
-      list.innerHTML = `<li class="empty-message">불러온 글이 없습니다. posts/posts.json을 확인하세요.</li>`;
-      return;
-    }
-
-    list.innerHTML = filtered.slice(0, 5).map(post =>
-      `<li class="post-item">
-        <a href="posts/${post.filename}">${post.title}</a>
-        <span class="post-date">${post.date}</span>
-      </li>`
-    ).join("");
-  }
-
-  function setupTopicButtons() {
-    document.querySelectorAll(".topic-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const category = btn.dataset.category;
-        document.querySelectorAll(".topic-button")
-          .forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        renderTopicPosts(category);
-      });
-    });
-  }
-
-  /* ---- 사이드바 렌더 ---- */
-  function renderSidebarCategoryPosts(category) {
-    const list = document.getElementById("sidebar-posts-list");
-    const filtered = filterPostsByCategory(category);
-
-    if (!filtered.length) {
-      list.innerHTML = `<p class="empty-message">해당 카테고리의 글이 없습니다.</p>`;
-      return;
-    }
-
-    list.innerHTML = filtered.slice(0, 10).map(post =>
-      `<a class="sidebar-post-link" href="posts/${post.filename}">${post.title}</a>`
-    ).join("");
-  }
-
-  function setupSidebarCategoryButtons() {
-    document.querySelectorAll(".sidebar-category-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const category = btn.dataset.category;
-        renderSidebarCategoryPosts(category);
-        renderTopicPosts(category);
-        document.querySelector(".sidebar").classList.remove("open");
-      });
-    });
-  }
-</script>
-
+  </script>
 </body>
 </html>
