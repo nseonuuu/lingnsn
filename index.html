@@ -470,44 +470,47 @@
 
       // 날짜 셀
       for (let day = 1; day <= lastDayNum; day++) {
-        const cellDate = new Date(year, month, day);
-        const dateStr = cellDate.toISOString().slice(0, 10);
-        const hasEntry = !!entriesByDate[dateStr];
+  // 🔥 Date 객체로 ISO 문자열 만들지 말고, 직접 YYYY-MM-DD 형식으로 조합
+  const y = String(year);
+  const m = String(month + 1).padStart(2, "0"); // month는 0부터 시작하니까 +1
+  const d = String(day).padStart(2, "0");
+  const dateStr = `${y}-${m}-${d}`;
 
-        const cell = document.createElement("button");
-        cell.type = "button";
-        cell.className = "daily-calendar-cell";
-        cell.dataset.date = dateStr;
-        cell.textContent = String(day);
+  const hasEntry = !!entriesByDate[dateStr];
 
-        if (hasEntry) {
-          cell.classList.add("has-entry");
-        }
+  const cell = document.createElement("button");
+  cell.type = "button";
+  cell.className = "daily-calendar-cell";
+  cell.dataset.date = dateStr;
+  cell.textContent = String(day);
 
-        if (dailySelectedDate === dateStr) {
-          cell.classList.add("selected");
-        }
+  if (hasEntry) {
+    cell.classList.add("has-entry");
+  }
 
-        cell.addEventListener("click", () => {
-          if (dailySelectedDate === dateStr) {
-            // 한 번 더 누르면 필터 해제
-            dailySelectedDate = null;
-          } else {
-            dailySelectedDate = dateStr;
-          }
-          renderDailyFeed();
-          // 선택 상태 재렌더
-          document.querySelectorAll(".daily-calendar-cell").forEach(c => {
-            if (c.dataset.date === dailySelectedDate) {
-              c.classList.add("selected");
-            } else {
-              c.classList.remove("selected");
-            }
-          });
-        });
+  if (dailySelectedDate === dateStr) {
+    cell.classList.add("selected");
+  }
 
-        grid.appendChild(cell);
+  cell.addEventListener("click", () => {
+    if (dailySelectedDate === dateStr) {
+      dailySelectedDate = null;
+    } else {
+      dailySelectedDate = dateStr;
+    }
+    renderDailyFeed();
+    document.querySelectorAll(".daily-calendar-cell").forEach(c => {
+      if (c.dataset.date === dailySelectedDate) {
+        c.classList.add("selected");
+      } else {
+        c.classList.remove("selected");
       }
+    });
+  });
+
+  grid.appendChild(cell);
+}
+
     }
 
     function renderDailyFeed() {
@@ -689,9 +692,9 @@
 
           // 최근 날짜 기준으로 소팅 (가장 최근 것이 앞에 오도록)
           dailyEntries.sort((a, b) => {
-            const da = new Date(a.date || 0);
-            const db = new Date(b.date || 0);
-            return db - da;
+            const da = (a.date || "");
+            const db = (b.date || "");
+            return db.localeCompare(da); // 최신 날짜가 앞에 오도록
           });
 
           const entriesByDate = groupEntriesByDate(dailyEntries);
