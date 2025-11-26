@@ -127,6 +127,68 @@
         </div>
       </div>
     </section>
+
+        <!-- Daily Study / Workout Log -->
+    <section class="section" id="daily-log-section">
+      <h2 class="section-title">Daily Study / Workout Log</h2>
+
+      <div class="daily-log-layout">
+        <!-- 캘린더 패널 -->
+        <div class="daily-calendar-panel">
+          <div class="daily-log-header">
+            <button type="button" class="daily-log-nav" data-dir="prev">←</button>
+            <div class="daily-log-month-label" id="daily-log-month-label"></div>
+            <button type="button" class="daily-log-nav" data-dir="next">→</button>
+          </div>
+
+          <div class="daily-calendar-grid" id="daily-calendar-grid">
+            <!-- 요일 헤더 -->
+            <div class="daily-calendar-day-label">일</div>
+            <div class="daily-calendar-day-label">월</div>
+            <div class="daily-calendar-day-label">화</div>
+            <div class="daily-calendar-day-label">수</div>
+            <div class="daily-calendar-day-label">목</div>
+            <div class="daily-calendar-day-label">금</div>
+            <div class="daily-calendar-day-label">토</div>
+            <!-- 날짜 셀은 JS에서 채움 -->
+          </div>
+
+          <p class="daily-log-hint">
+            · 점이 있는 날짜는 인증이 있는 날입니다. 날짜를 클릭하면 아래 피드가 해당 날짜로 필터링됩니다.
+          </p>
+        </div>
+
+        <!-- 인스타그램 스타일 피드 -->
+        <div class="daily-feed-panel">
+          <h3 class="section-subheading">Daily Feed</h3>
+          <div class="daily-feed-grid" id="daily-feed-grid">
+            <!-- JS로 썸네일 카드 렌더링 -->
+          </div>
+          <p class="daily-log-empty" id="daily-log-empty" hidden>
+            아직 업로드된 인증이 없습니다.
+          </p>
+          <p class="daily-log-selected-info" id="daily-log-selected-info" hidden></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 이미지/글 상세 보기 모달 -->
+  <div class="daily-log-modal-backdrop" id="daily-log-modal-backdrop">
+    <div class="daily-log-modal" role="dialog" aria-modal="true" aria-labelledby="daily-log-modal-title">
+      <button type="button" class="daily-log-modal-close" id="daily-log-modal-close">✕</button>
+      <div class="daily-log-modal-image-wrap">
+        <img src="" alt="" class="daily-log-modal-image" id="daily-log-modal-image" />
+      </div>
+      <div class="daily-log-modal-body">
+        <h3 class="daily-log-modal-title" id="daily-log-modal-title"></h3>
+        <p class="daily-log-modal-meta" id="daily-log-modal-meta"></p>
+        <p class="daily-log-modal-text" id="daily-log-modal-text"></p>
+      </div>
+    </div>
+  </div>
+
+    
   </main>
 
   <!-- 푸터 -->
@@ -356,11 +418,302 @@
         });
     }
 
+        // --- Daily Study / Workout Log ---
+
+    const DAILY_LOG_CONFIG = {
+      dataUrl: "daily/daily-logs.json", // 새로 만들 JSON 파일 경로
+    };
+
+    let dailyEntries = [];
+    let dailyCurrentYear;
+    let dailyCurrentMonth; // 0-based (0 = January)
+    let dailySelectedDate = null;
+
+    function normalizeDateStr(dateStr) {
+      // "2025-11-03T..." 같은 것도 "2025-11-03"으로 통일
+      return (dateStr || "").slice(0, 10);
+    }
+
+    function groupEntriesByDate(entries) {
+      const map = {};
+      entries.forEach(entry => {
+        const key = normalizeDateStr(entry.date);
+        if (!key) return;
+        if (!map[key]) map[key] = [];
+        map[key].push(entry);
+      });
+      return map;
+    }
+
+    function buildCalendar(year, month, entriesByDate) {
+      const grid = document.getElementById("daily-calendar-grid");
+      const monthLabel = document.getElementById("daily-log-month-label");
+      if (!grid || !monthLabel) return;
+
+      // 기존 날짜 셀 제거 (요일 헤더 7개만 남기고)
+      while (grid.children.length > 7) {
+        grid.removeChild(grid.lastChild);
+      }
+
+      const firstDay = new Date(year, month, 1);
+      const startWeekday = firstDay.getDay(); // 0 = Sun
+      const lastDayNum = new Date(year, month + 1, 0).getDate();
+
+      monthLabel.textContent = `${year}. ${(month + 1).toString().padStart(2, "0")}`;
+
+      // 앞쪽 빈 셀
+      for (let i = 0; i < startWeekday; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.className = "daily-calendar-cell empty";
+        grid.appendChild(emptyCell);
+      }
+
+      // 날짜 셀
+      for (let day = 1; day <= lastDayNum; day++) {
+        const cellDate = new Date(year, month, day);
+        const dateStr = cellDate.toISOString().slice(0, 10);
+        const hasEntry = !!entriesByDate[dateStr];
+
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "daily-calendar-cell";
+        cell.dataset.date = dateStr;
+        cell.textContent = String(day);
+
+        if (hasEntry) {
+          cell.classList.add("has-entry");
+        }
+
+        if (dailySelectedDate === dateStr) {
+          cell.classList.add("selected");
+        }
+
+        cell.addEventListener("click", () => {
+          if (dailySelectedDate === dateStr) {
+            // 한 번 더 누르면 필터 해제
+            dailySelectedDate = null;
+          } else {
+            dailySelectedDate = dateStr;
+          }
+          renderDailyFeed();
+          // 선택 상태 재렌더
+          document.querySelectorAll(".daily-calendar-cell").forEach(c => {
+            if (c.dataset.date === dailySelectedDate) {
+              c.classList.add("selected");
+            } else {
+              c.classList.remove("selected");
+            }
+          });
+        });
+
+        grid.appendChild(cell);
+      }
+    }
+
+    function renderDailyFeed() {
+      const container = document.getElementById("daily-feed-grid");
+      const emptyEl = document.getElementById("daily-log-empty");
+      const selectedInfoEl = document.getElementById("daily-log-selected-info");
+      if (!container || !emptyEl || !selectedInfoEl) return;
+
+      container.innerHTML = "";
+
+      let visibleEntries = dailyEntries.slice();
+
+      if (dailySelectedDate) {
+        const normalized = normalizeDateStr(dailySelectedDate);
+        visibleEntries = visibleEntries.filter(
+          entry => normalizeDateStr(entry.date) === normalized
+        );
+        selectedInfoEl.hidden = false;
+        selectedInfoEl.textContent = `${normalized} 인증만 표시 중입니다. (다시 날짜를 누르면 전체 보기)`;
+      } else {
+        selectedInfoEl.hidden = true;
+      }
+
+      if (!visibleEntries.length) {
+        emptyEl.hidden = false;
+        return;
+      }
+
+      emptyEl.hidden = true;
+
+      visibleEntries.forEach(entry => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "daily-feed-item";
+        card.dataset.date = normalizeDateStr(entry.date || "");
+
+        const thumbWrap = document.createElement("div");
+        thumbWrap.className = "daily-feed-thumb-wrap";
+
+        if (entry.image) {
+          const img = document.createElement("img");
+          img.className = "daily-feed-thumb";
+          img.src = entry.image;
+          img.alt = (entry.title || "") + " 썸네일";
+          thumbWrap.appendChild(img);
+        } else {
+          const placeholder = document.createElement("div");
+          placeholder.className = "daily-feed-thumb placeholder";
+          placeholder.textContent = "No Image";
+          thumbWrap.appendChild(placeholder);
+        }
+
+        const meta = document.createElement("div");
+        meta.className = "daily-feed-meta";
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "daily-feed-title";
+        titleEl.textContent = entry.title || "제목 없음";
+
+        const dateEl = document.createElement("div");
+        dateEl.className = "daily-feed-date";
+        const parts = [];
+        if (entry.date) parts.push(normalizeDateStr(entry.date));
+        if (entry.type) parts.push(entry.type);
+        meta.appendChild(titleEl);
+        dateEl.textContent = parts.join(" · ");
+
+        meta.appendChild(dateEl);
+
+        card.appendChild(thumbWrap);
+        card.appendChild(meta);
+
+        card.addEventListener("click", () => openDailyModal(entry));
+
+        container.appendChild(card);
+      });
+    }
+
+    function openDailyModal(entry) {
+      const backdrop = document.getElementById("daily-log-modal-backdrop");
+      const imgEl = document.getElementById("daily-log-modal-image");
+      const titleEl = document.getElementById("daily-log-modal-title");
+      const metaEl = document.getElementById("daily-log-modal-meta");
+      const textEl = document.getElementById("daily-log-modal-text");
+      if (!backdrop || !imgEl || !titleEl || !metaEl || !textEl) return;
+
+      if (entry.image) {
+        imgEl.src = entry.image;
+        imgEl.alt = (entry.title || "") + " 이미지";
+      } else {
+        imgEl.src = "";
+        imgEl.alt = "";
+      }
+
+      titleEl.textContent = entry.title || "제목 없음";
+
+      const parts = [];
+      if (entry.date) parts.push(normalizeDateStr(entry.date));
+      if (entry.type) parts.push(entry.type);
+      metaEl.textContent = parts.join(" · ");
+
+      textEl.textContent = entry.text || "";
+
+      backdrop.classList.add("open");
+    }
+
+    function closeDailyModal() {
+      const backdrop = document.getElementById("daily-log-modal-backdrop");
+      if (!backdrop) return;
+      backdrop.classList.remove("open");
+    }
+
+    function setupDailyModalEvents() {
+      const backdrop = document.getElementById("daily-log-modal-backdrop");
+      const closeBtn = document.getElementById("daily-log-modal-close");
+      if (!backdrop || !closeBtn) return;
+
+      closeBtn.addEventListener("click", closeDailyModal);
+      backdrop.addEventListener("click", event => {
+        if (event.target === backdrop) {
+          closeDailyModal();
+        }
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          closeDailyModal();
+        }
+      });
+    }
+
+    function setupDailyMonthNav(entriesByDate) {
+      const prevBtn = document.querySelector(".daily-log-nav[data-dir='prev']");
+      const nextBtn = document.querySelector(".daily-log-nav[data-dir='next']");
+      if (!prevBtn || !nextBtn) return;
+
+      function rerender() {
+        buildCalendar(dailyCurrentYear, dailyCurrentMonth, entriesByDate);
+      }
+
+      prevBtn.addEventListener("click", () => {
+        if (dailyCurrentMonth === 0) {
+          dailyCurrentMonth = 11;
+          dailyCurrentYear -= 1;
+        } else {
+          dailyCurrentMonth -= 1;
+        }
+        rerender();
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (dailyCurrentMonth === 11) {
+          dailyCurrentMonth = 0;
+          dailyCurrentYear += 1;
+        } else {
+          dailyCurrentMonth += 1;
+        }
+        rerender();
+      });
+    }
+
+    function initDailyLog() {
+      const today = new Date();
+      dailyCurrentYear = today.getFullYear();
+      dailyCurrentMonth = today.getMonth();
+
+      setupDailyModalEvents();
+
+      fetch(DAILY_LOG_CONFIG.dataUrl)
+        .then(resp => resp.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            dailyEntries = data;
+          } else if (Array.isArray(data?.entries)) {
+            dailyEntries = data.entries;
+          } else {
+            dailyEntries = [];
+          }
+
+          // 최근 날짜 기준으로 소팅 (가장 최근 것이 앞에 오도록)
+          dailyEntries.sort((a, b) => {
+            const da = new Date(a.date || 0);
+            const db = new Date(b.date || 0);
+            return db - da;
+          });
+
+          const entriesByDate = groupEntriesByDate(dailyEntries);
+          buildCalendar(dailyCurrentYear, dailyCurrentMonth, entriesByDate);
+          setupDailyMonthNav(entriesByDate);
+          renderDailyFeed();
+        })
+        .catch(error => {
+          console.error("daily-logs.json 로드 실패:", error);
+          dailyEntries = [];
+          renderDailyFeed();
+        });
+    }
+
+    
     // 초기화
     setupTopicButtons();
     setupSidebarCategoryButtons();
     renderTopicPosts(TOPIC_ALL); // 데이터 로딩 전 기본 메시지
     initPosts();
+    initDailyLog(); // ← Daily Log 초기화
   </script>
+
 </body>
 </html>
