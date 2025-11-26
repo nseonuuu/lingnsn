@@ -1,0 +1,23 @@
+[
+  {
+    "date": "2025-11-10",
+    "type": "study",
+    "title": "Attention 논문 1장 읽기",
+    "text": "섹션 3까지 읽고 self-attention 수식 정리.",
+    "image": "daily/2025-11-10-study.jpg"
+  },
+  {
+    "date": "2025-11-10",
+    "type": "workout",
+    "title": "하체 운동",
+    "text": "스쿼트, 런지 위주 40분.",
+    "image": "daily/2025-11-10-workout.jpg"
+  },
+  {
+    "date": "2025-11-09",
+    "type": "study",
+    "title": "비트겐슈타인 §1–20",
+    "text": "언어게임 개념 메모.",
+    "image": "daily/2025-11-09-study.jpg"
+  }
+]
