@@ -428,3 +428,240 @@ footer {
     gap: 2rem;
   }
 }
+
+/* Daily Study / Workout Log */
+
+.daily-log-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+}
+
+.daily-calendar-panel,
+.daily-feed-panel {
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+}
+
+.daily-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.daily-log-month-label {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.daily-log-nav {
+  border: 1px solid var(--border);
+  background: transparent;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.daily-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.daily-calendar-day-label {
+  text-align: center;
+  font-weight: 600;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.daily-calendar-cell {
+  padding: 0.35rem 0;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.daily-calendar-cell.empty {
+  border: none;
+  cursor: default;
+}
+
+.daily-calendar-cell.has-entry::after {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+}
+
+.daily-calendar-cell.selected {
+  background: #111111;
+  color: #ffffff;
+}
+
+.daily-log-hint {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Daily Feed */
+
+.daily-feed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+}
+
+.daily-feed-item {
+  border: 1px solid var(--border);
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.daily-feed-thumb-wrap {
+  position: relative;
+  padding-top: 100%; /* 1:1 비율 유지 */
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.daily-feed-thumb,
+.daily-feed-thumb.placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.daily-feed-thumb.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+}
+
+.daily-feed-meta {
+  padding: 0.25rem 0.35rem 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.daily-feed-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.daily-feed-date {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.daily-log-empty,
+.daily-log-selected-info {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* 모달 */
+
+.daily-log-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.daily-log-modal-backdrop.open {
+  display: flex;
+}
+
+.daily-log-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  max-width: 640px;
+  width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.daily-log-modal-close {
+  align-self: flex-end;
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.daily-log-modal-image-wrap {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  max-height: 360px;
+  overflow: hidden;
+}
+
+.daily-log-modal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.daily-log-modal-body {
+  padding: 0.75rem 0.9rem 1rem;
+}
+
+.daily-log-modal-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.daily-log-modal-meta {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.daily-log-modal-text {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .daily-log-layout {
+    flex-direction: row;
+  }
+
+  .daily-calendar-panel,
+  .daily-feed-panel {
+    flex: 1;
+  }
+
+  .daily-feed-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
