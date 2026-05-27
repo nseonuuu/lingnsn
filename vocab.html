@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocab Flashcards</title>
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --bg:#f0f4f8; --surface:#fff; --primary:#4f46e5; --pd:#4338ca;
+      --accent:#10b981; --text:#1e293b; --muted:#64748b;
+      --border:#e2e8f0; --shadow:0 2px 12px rgba(0,0,0,.08); --r:14px;
+    }
+    body {
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,
+        "Noto Sans KR","Malgun Gothic",Helvetica,Arial,sans-serif;
+      background:var(--bg); color:var(--text); min-height:100vh;
+    }
+
+    /* Header */
+    header {
+      background:var(--primary); color:#fff; padding:15px 20px 12px;
+      text-align:center; position:sticky; top:0; z-index:100;
+      box-shadow:0 2px 10px rgba(79,70,229,.4);
+    }
+    header h1 { font-size:1.25rem; font-weight:700; }
+    #header-sub { font-size:.75rem; opacity:.8; margin-top:2px; }
+    #btn-back {
+      display:none; background:none; border:none; color:#fff; font-size:.75rem;
+      font-weight:600; cursor:pointer; opacity:.85; text-decoration:underline;
+      font-family:inherit; margin-top:3px;
+    }
+    .print-only { display:none; }
+
+    /* Upload */
+    #upload-screen {
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; min-height:calc(100vh - 62px);
+      padding:24px; gap:16px;
+    }
+    .upload-card {
+      background:var(--surface); border:2px dashed var(--border);
+      border-radius:var(--r); padding:34px 26px; text-align:center;
+      max-width:480px; width:100%; box-shadow:var(--shadow);
+      transition:border-color .2s;
+    }
+    .upload-card:hover { border-color:var(--primary); }
+    .upload-icon { font-size:2.6rem; margin-bottom:13px; display:block; }
+    .upload-card h2 { font-size:1.05rem; margin-bottom:7px; }
+    .upload-card > p { font-size:.82rem; color:var(--muted); margin-bottom:14px; line-height:1.6; }
+    .file-types { display:flex; justify-content:center; gap:7px; margin-bottom:14px; }
+    .ft-badge {
+      background:var(--bg); border:1.5px solid var(--border); border-radius:7px;
+      padding:3px 10px; font-size:.72rem; font-weight:700; color:var(--muted);
+    }
+    .enc-title { font-size:.71rem; color:var(--muted); font-weight:600; margin-bottom:7px; }
+    .enc-group { display:flex; gap:6px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
+    .enc-label {
+      display:flex; align-items:center; gap:4px; font-size:.78rem;
+      background:var(--bg); border:1.5px solid var(--border); border-radius:8px;
+      padding:5px 11px; cursor:pointer; font-weight:500;
+      transition:border-color .15s,background .15s;
+    }
+    .enc-label input[type=radio] { accent-color:var(--primary); }
+    .enc-label:has(input:checked) { border-color:var(--primary); background:#ede9fe; color:var(--primary); }
+    #file-input { display:none; }
+    .btn-upload {
+      display:inline-flex; align-items:center; gap:8px;
+      background:var(--primary); color:#fff; border:none; border-radius:10px;
+      padding:11px 26px; font-size:.9rem; font-weight:600; cursor:pointer;
+      transition:background .18s,transform .12s; font-family:inherit;
+    }
+    .btn-upload:hover { background:var(--pd); }
+    .btn-upload:active { transform:scale(.97); }
+    .enc-hint { margin-top:13px; font-size:.71rem; color:var(--muted); line-height:1.5; }
+    #error-msg {
+      color:#dc2626; background:#fef2f2; border:1px solid #fecaca;
+      border-radius:10px; padding:12px 16px; font-size:.83rem;
+      max-width:480px; width:100%; display:none; white-space:pre-wrap;
+    }
+
+    /* Study screen */
+    #study-screen { display:none; }
+
+    .controls {
+      position:sticky; top:59px; z-index:90; background:var(--bg);
+      padding:9px 14px; display:flex; gap:7px; align-items:center;
+      flex-wrap:wrap; border-bottom:1px solid var(--border);
+    }
+    .search-wrap { flex:1; min-width:120px; position:relative; }
+    .search-wrap svg {
+      position:absolute; left:10px; top:50%;
+      transform:translateY(-50%); color:var(--muted); pointer-events:none;
+    }
+    #search-input {
+      width:100%; padding:8px 10px 8px 32px;
+      border:1.5px solid var(--border); border-radius:9px;
+      font-size:.84rem; background:var(--surface); color:var(--text);
+      outline:none; transition:border-color .18s; font-family:inherit;
+    }
+    #search-input:focus { border-color:var(--primary); }
+
+    .view-tabs { display:flex; border:1.5px solid var(--border); border-radius:9px; overflow:hidden; flex-shrink:0; }
+    .vt-btn {
+      background:var(--surface); border:none; color:var(--muted);
+      padding:7px 13px; font-size:.9rem; cursor:pointer;
+      font-family:inherit; font-weight:700; transition:background .15s,color .15s;
+      line-height:1;
+    }
+    .vt-btn.active { background:var(--primary); color:#fff; }
+
+    .btn-sm {
+      background:var(--surface); border:1.5px solid var(--border); color:var(--muted);
+      border-radius:9px; padding:7px 10px; font-size:.76rem; font-weight:600;
+      cursor:pointer; white-space:nowrap; font-family:inherit;
+      transition:background .15s,color .15s,border-color .15s;
+    }
+    .btn-sm:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .btn-print {
+      background:var(--accent); border:none; color:#fff; border-radius:9px;
+      padding:7px 11px; font-size:.76rem; font-weight:600; cursor:pointer;
+      white-space:nowrap; display:inline-flex; align-items:center; gap:4px;
+      font-family:inherit; transition:background .15s;
+    }
+    .btn-print:hover { background:#059669; }
+
+    .stats-bar {
+      padding:6px 14px; font-size:.73rem; color:var(--muted);
+      display:flex; justify-content:space-between;
+    }
+    .stats-bar strong { color:var(--primary); }
+
+    /* List view */
+    #card-list {
+      padding:8px 14px 60px; display:flex; flex-direction:column;
+      gap:9px; max-width:700px; margin:0 auto;
+    }
+    .vocab-card {
+      background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow);
+      overflow:hidden; border:1.5px solid transparent;
+      transition:border-color .18s,transform .12s; cursor:pointer;
+    }
+    .vocab-card:hover { border-color:var(--primary); transform:translateY(-1px); }
+    .vocab-card.revealed { background:#f8faff; border-color:var(--primary); }
+    .card-front {
+      padding:13px 16px; display:flex;
+      align-items:center; justify-content:space-between; gap:11px;
+    }
+    .card-front-left { display:flex; align-items:center; gap:10px; min-width:0; }
+    .card-index {
+      background:var(--bg); color:var(--muted); font-size:.65rem; font-weight:700;
+      min-width:27px; height:27px; border-radius:6px;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .card-headword {
+      font-size:1.05rem; font-weight:700;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .reveal-btn {
+      flex-shrink:0; background:var(--bg); border:none; border-radius:6px;
+      width:29px; height:29px; display:flex; align-items:center;
+      justify-content:center; color:var(--muted); cursor:pointer;
+      transition:background .15s,color .15s,transform .2s;
+    }
+    .vocab-card.revealed .reveal-btn { background:var(--primary); color:#fff; transform:rotate(180deg); }
+    .card-back { display:none; padding:0 16px 13px; border-top:1px solid var(--border); }
+    .vocab-card.revealed .card-back { display:block; }
+    .card-section { margin-top:10px; }
+    .card-label {
+      font-size:.61rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.8px; color:var(--muted); margin-bottom:3px;
+    }
+    .card-translation { font-size:.95rem; font-weight:600; color:var(--primary); }
+    .card-synonyms { display:flex; flex-wrap:wrap; gap:5px; }
+    .syn-tag { background:#ede9fe; color:#5b21b6; border-radius:6px; padding:2px 7px; font-size:.74rem; font-weight:500; }
+    .card-example { font-size:.82rem; color:var(--text); line-height:1.6; font-style:italic; border-left:3px solid var(--accent); padding-left:8px; }
+
+    /* ════════════ SINGLE CARD VIEW ════════════ */
+    #sc-area {
+      display:none; flex-direction:column; align-items:center;
+      padding:12px 14px 28px; gap:13px;
+    }
+
+    .sc-progress-row { width:100%; max-width:520px; display:flex; align-items:center; gap:9px; }
+    .sc-counter { font-size:.8rem; font-weight:700; color:var(--muted); white-space:nowrap; min-width:58px; }
+    .sc-bar-wrap { flex:1; height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .sc-bar-fill { height:100%; background:var(--primary); border-radius:3px; transition:width .35s ease; }
+    .sc-pct { font-size:.73rem; color:var(--muted); min-width:34px; text-align:right; }
+
+    @keyframes scInRight { from { opacity:0; transform:translateX(56px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes scInLeft  { from { opacity:0; transform:translateX(-56px); } to { opacity:1; transform:translateX(0); } }
+
+    .sc-card {
+      width:100%; max-width:520px; background:var(--surface);
+      border-radius:22px; box-shadow:0 4px 28px rgba(0,0,0,.12);
+      cursor:pointer; overflow:hidden; user-select:none;
+      transition:box-shadow .2s;
+    }
+    .sc-card:active { box-shadow:0 2px 10px rgba(0,0,0,.09); }
+    .sc-card.dir-right { animation:scInRight .26s ease; }
+    .sc-card.dir-left  { animation:scInLeft  .26s ease; }
+
+    .sc-front-area {
+      padding:38px 26px 26px; text-align:center;
+      min-height:200px; display:flex; flex-direction:column;
+      justify-content:center; align-items:center; position:relative;
+    }
+    .sc-badge {
+      position:absolute; top:14px; left:16px;
+      background:var(--bg); color:var(--muted);
+      font-size:.67rem; font-weight:700; padding:3px 9px; border-radius:20px;
+    }
+    .sc-hw {
+      font-size:2.3rem; font-weight:800; letter-spacing:-.5px;
+      line-height:1.2; color:var(--text); word-break:break-word;
+    }
+    .sc-hint {
+      margin-top:16px; font-size:.8rem; color:#94a3b8;
+      display:flex; align-items:center; gap:5px;
+      transition:opacity .2s;
+    }
+    .sc-card.revealed .sc-hint { opacity:0; pointer-events:none; }
+
+    .sc-back-area {
+      max-height:0; overflow:hidden; opacity:0;
+      transition:max-height .38s ease, opacity .28s ease;
+    }
+    .sc-card.revealed .sc-back-area {
+      max-height:700px; opacity:1;
+      border-top:1px solid var(--border);
+    }
+    .sc-back-inner { padding:18px 22px 24px; }
+    .sc-field { margin-bottom:14px; }
+    .sc-field:last-child { margin-bottom:0; }
+    .sc-field-label {
+      font-size:.62rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.8px; color:var(--muted); margin-bottom:5px;
+    }
+    .sc-translation { font-size:1.6rem; font-weight:700; color:var(--primary); }
+    .sc-synonyms { display:flex; flex-wrap:wrap; gap:6px; }
+    .sc-syn-tag { background:#ede9fe; color:#5b21b6; border-radius:8px; padding:3px 10px; font-size:.82rem; font-weight:500; }
+    .sc-example { font-size:.88rem; color:var(--text); line-height:1.65; font-style:italic; border-left:3px solid var(--accent); padding-left:10px; }
+
+    .sc-nav {
+      width:100%; max-width:520px;
+      display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center;
+    }
+    .sc-nav-btn {
+      background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
+      padding:13px 10px; font-size:.86rem; font-weight:700; cursor:pointer;
+      color:var(--text); font-family:inherit;
+      display:flex; align-items:center; justify-content:center; gap:5px;
+      transition:background .15s,border-color .15s,color .15s;
+    }
+    .sc-nav-btn:hover:not(:disabled) { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .sc-nav-btn:disabled { opacity:.3; cursor:not-allowed; }
+    .sc-center { display:flex; gap:8px; justify-content:center; }
+    .sc-icon-btn {
+      background:var(--surface); border:1.5px solid var(--border);
+      border-radius:10px; color:var(--muted); cursor:pointer;
+      font-size:1rem; padding:9px 11px; line-height:1;
+      transition:background .15s;
+    }
+    .sc-icon-btn:hover { background:var(--bg); }
+
+    .empty-state { text-align:center; padding:60px 24px; color:var(--muted); }
+    .empty-state span { font-size:2.5rem; display:block; margin-bottom:12px; }
+
+    /* Swipe hint overlay (first-time only) */
+    .sc-swipe-hint {
+      font-size:.72rem; color:var(--muted); text-align:center;
+      opacity:.7; letter-spacing:.2px;
+    }
+
+    @media (min-width:600px) {
+      header h1 { font-size:1.4rem; }
+      .card-headword { font-size:1.12rem; }
+      #card-list, #sc-area { padding-left:22px; padding-right:22px; }
+      .controls, .stats-bar { padding-left:22px; padding-right:22px; }
+      .sc-hw { font-size:2.8rem; }
+    }
+
+    /* ════════ PRINT ════════ */
+    @media print {
+      @page { size:A4 portrait; margin:14mm 13mm 16mm 13mm; }
+      *, *::before, *::after { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+      body { background:#fff !important; padding:0 !important; font-size:9.5pt; color:#111 !important; }
+      #upload-screen,.controls,.stats-bar,#btn-back,.reveal-btn,#header-sub,#sc-area { display:none !important; }
+      .print-only { display:block !important; }
+      header { position:static !important; background:#fff !important; color:#111 !important; box-shadow:none !important; padding:0 0 7pt !important; border-bottom:2pt solid #1e293b !important; margin-bottom:10pt !important; text-align:left !important; }
+      header h1 { font-size:15pt !important; color:#1a1a2e !important; }
+      #print-meta { font-size:8pt !important; color:#555 !important; margin-top:3pt !important; }
+      #study-screen { display:block !important; }
+      #card-list { padding:0 !important; margin:0 !important; max-width:none !important; gap:0 !important; display:flex !important; }
+      .vocab-card { break-inside:avoid !important; page-break-inside:avoid !important; border:0.5pt solid #c8c8d0 !important; border-radius:4pt !important; box-shadow:none !important; background:#fff !important; transform:none !important; margin-bottom:5pt !important; overflow:visible !important; }
+      .card-back { display:block !important; border-top:0.4pt solid #ddd !important; padding:0 8pt 6pt !important; }
+      .card-front { padding:5pt 8pt !important; }
+      .card-index { background:#efefef !important; font-size:6.5pt !important; min-width:20pt !important; height:20pt !important; }
+      .card-headword { font-size:10.5pt !important; white-space:normal !important; overflow:visible !important; color:#111 !important; }
+      .card-section { margin-top:4pt !important; }
+      .card-label { font-size:6pt !important; color:#777 !important; margin-bottom:1.5pt !important; }
+      .card-translation { font-size:9.5pt !important; color:#2e27a8 !important; }
+      .syn-tag { background:#f0edff !important; color:#4c1d95 !important; font-size:7pt !important; padding:1pt 5pt !important; }
+      .card-example { font-size:7.5pt !important; line-height:1.4 !important; border-left:1.5pt solid #10b981 !important; padding-left:5pt !important; color:#333 !important; }
+      .empty-state { display:none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>&#128218; Vocab Flashcards</h1>
+  <p id="header-sub">Upload a file to start studying</p>
+  <button id="btn-back" onclick="resetApp()">&#8592; Upload new file</button>
+  <div class="print-only" id="print-meta"></div>
+</header>
+
+<!-- UPLOAD -->
+<div id="upload-screen">
+  <div class="upload-card">
+    <span class="upload-icon">&#128196;</span>
+    <h2>Load Your Vocabulary List</h2>
+    <div class="file-types">
+      <span class="ft-badge">.CSV</span>
+      <span class="ft-badge">.XLSX</span>
+      <span class="ft-badge">.MD</span>
+    </div>
+    <p>Required columns:<br>
+      <code>Index · Headword · Synonyms<br>Example Sentence · Translation</code>
+    </p>
+    <p class="enc-title">CSV Encoding (for Korean)</p>
+    <div class="enc-group">
+      <label class="enc-label"><input type="radio" name="enc" value="auto" checked /> Auto-detect</label>
+      <label class="enc-label"><input type="radio" name="enc" value="euc-kr" /> EUC-KR</label>
+      <label class="enc-label"><input type="radio" name="enc" value="utf-8" /> UTF-8</label>
+    </div>
+    <button class="btn-upload" onclick="document.getElementById('file-input').click()">
+      &#128196;&nbsp;Choose File
+    </button>
+    <input type="file" id="file-input" accept=".csv,.xlsx,.xls,.md,.markdown" />
+    <p class="enc-hint">&#128161; Korean CSV (Excel): select <strong>EUC-KR</strong>, or save<br>as "CSV UTF-8 (BOM)" → <strong>Auto-detect</strong>.</p>
+  </div>
+  <div id="error-msg"></div>
+</div>
+
+<!-- STUDY -->
+<div id="study-screen">
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="search-input" placeholder="Search headwords…" oninput="onSearch()" />
+    </div>
+    <!-- View toggle -->
+    <div class="view-tabs">
+      <button class="vt-btn active" id="vt-list" onclick="setView('list')" title="List view">&#9776;</button>
+      <button class="vt-btn"        id="vt-card" onclick="setView('card')" title="Card view">&#9638;</button>
+    </div>
+    <button class="btn-sm" id="ctrl-reveal" onclick="revealAll()">Reveal all</button>
+    <button class="btn-sm" id="ctrl-hide"   onclick="collapseAll()">Hide all</button>
+    <button class="btn-print" onclick="triggerPrint()">&#128438;&nbsp;PDF</button>
+  </div>
+  <div class="stats-bar">
+    <span id="stats-text"></span>
+    <span id="progress-text"></span>
+  </div>
+
+  <!-- List view -->
+  <div id="card-list"></div>
+
+  <!-- ═══ Single card (mobile) view ═══ -->
+  <div id="sc-area">
+
+    <div class="sc-progress-row">
+      <div class="sc-counter" id="sc-counter">0 / 0</div>
+      <div class="sc-bar-wrap"><div class="sc-bar-fill" id="sc-bar"></div></div>
+      <div class="sc-pct" id="sc-pct">0%</div>
+    </div>
+
+    <div class="sc-card" id="sc-card" onclick="scTap()">
+      <div class="sc-front-area">
+        <span class="sc-badge" id="sc-badge">—</span>
+        <div class="sc-hw" id="sc-hw">—</div>
+        <div class="sc-hint">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Tap to reveal
+        </div>
+      </div>
+      <div class="sc-back-area">
+        <div class="sc-back-inner" id="sc-back-inner"></div>
+      </div>
+    </div>
+
+    <div class="sc-nav">
+      <button class="sc-nav-btn" id="sc-prev" onclick="scMove(-1)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Prev
+      </button>
+      <div class="sc-center">
+        <button class="sc-icon-btn" onclick="scShuffle()" title="Shuffle cards">&#128256;</button>
+        <button class="sc-icon-btn" onclick="scGoTo(0)"   title="Back to first">&#8634;</button>
+      </div>
+      <button class="sc-nav-btn" id="sc-next" onclick="scMove(1)">
+        Next
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <div class="sc-swipe-hint">&#8592; swipe to navigate &nbsp;·&nbsp; tap card to reveal &#8594;</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+var allWords      = [];
+var filteredWords = [];
+var currentView   = 'list';
+var scIdx         = 0;
+var didSwipe      = false;
+var touchX        = 0;
+var touchY        = 0;
+
+/* ── SheetJS on-demand loader ──────────────────────────────────── */
+var XLSX_URLS = [
+  'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+];
+function loadSheetJS(cb) {
+  if (window.XLSX) { cb(); return; }
+  var urls = XLSX_URLS.slice();
+  function next() {
+    if (!urls.length) {
+      showError('SheetJS 로드 실패.\n인터넷 연결을 확인하거나 CSV로 변환 후 다시 시도하세요.');
+      return;
+    }
+    var s = document.createElement('script');
+    s.onload = cb; s.onerror = next; s.src = urls.shift();
+    document.head.appendChild(s);
+  }
+  next();
+}
+
+/* ── File dispatch ─────────────────────────────────────────────── */
+document.getElementById('file-input').addEventListener('change', function(e) {
+  var f = e.target.files[0]; if (!f) return;
+  var n = f.name.toLowerCase();
+  if      (n.endsWith('.xlsx') || n.endsWith('.xls'))    handleXLSX(f);
+  else if (n.endsWith('.csv'))                            handleCSV(f);
+  else if (n.endsWith('.md') || n.endsWith('.markdown')) handleMD(f);
+  else showError('지원하지 않는 형식입니다. .csv / .xlsx / .md 파일을 사용하세요.');
+  e.target.value = '';
+});
+
+/* ── XLSX ──────────────────────────────────────────────────────── */
+function handleXLSX(file) {
+  loadSheetJS(function() {
+    readAB(file, function(buf) {
+      try {
+        var wb   = window.XLSX.read(new Uint8Array(buf), { type:'array' });
+        var ws   = wb.Sheets[wb.SheetNames[0]];
+        var rows = window.XLSX.utils.sheet_to_json(ws, { defval:'' });
+        if (!rows.length) { showError('첫 번째 시트가 비어 있습니다.'); return; }
+        finalize(rows, file.name);
+      } catch(err) { showError('XLSX 오류: ' + err.message); }
+    });
+  });
+}
+
+/* ── CSV ───────────────────────────────────────────────────────── */
+function handleCSV(file) {
+  readAB(file, function(buf) {
+    try {
+      var bytes = new Uint8Array(buf);
+      var enc   = detectEnc(bytes);
+      var text  = decodeBuf(buf, bytes, enc);
+      finalize(csvParse(text), file.name);
+    } catch(err) { showError('CSV 오류: ' + err.message); }
+  });
+}
+function detectEnc(b) {
+  var sel = document.querySelector('input[name=enc]:checked').value;
+  if (sel !== 'auto') return sel;
+  if (b[0]===0xEF&&b[1]===0xBB&&b[2]===0xBF) return 'utf-8-bom';
+  if (b[0]===0xFF&&b[1]===0xFE) return 'utf-16le';
+  if (b[0]===0xFE&&b[1]===0xFF) return 'utf-16be';
+  var s=0;
+  for (var i=0;i<Math.min(b.length-1,4000);i++)
+    if(b[i]>=0xA1&&b[i]<=0xFE&&b[i+1]>=0xA1&&b[i+1]<=0xFE){s++;i++;}
+  return s>3?'euc-kr':'utf-8';
+}
+function decodeBuf(buf,b,enc) {
+  if(enc==='utf-8-bom') return new TextDecoder('utf-8').decode(buf.slice(3));
+  if(enc==='utf-16le')  return new TextDecoder('utf-16le').decode(buf.slice(2));
+  if(enc==='utf-16be')  return new TextDecoder('utf-16be').decode(buf.slice(2));
+  return new TextDecoder(enc).decode(buf);
+}
+function csvParse(raw) {
+  var lines=raw.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  if(lines.length<2) return [];
+  var hdr=csvLine(lines[0]), rows=[];
+  for(var i=1;i<lines.length;i++){
+    var l=lines[i].trim(); if(!l) continue;
+    var v=csvLine(l),r={};
+    for(var j=0;j<hdr.length;j++) r[hdr[j].trim()]=(v[j]||'').trim();
+    rows.push(r);
+  }
+  return rows;
+}
+function csvLine(s) {
+  var res=[],cur='',q=false;
+  for(var i=0;i<s.length;i++){
+    var c=s[i];
+    if(q){if(c==='"'){if(s[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+    else{if(c==='"')q=true;else if(c===','){res.push(cur);cur='';}else cur+=c;}
+  }
+  res.push(cur); return res;
+}
+
+/* ── Markdown ──────────────────────────────────────────────────── */
+function handleMD(file) {
+  var r=new FileReader();
+  r.onerror=function(){showError('파일 읽기 실패');};
+  r.onload=function(e){
+    try{finalize(mdParse(e.target.result),file.name);}
+    catch(err){showError('MD 오류: '+err.message);}
+  };
+  r.readAsText(file,'UTF-8');
+}
+function mdParse(text) {
+  var lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n')
+    .split('\n').filter(function(l){return l.trim().startsWith('|');});
+  if(lines.length<2) throw new Error('Markdown 테이블 없음');
+  function sep(l){return /^\|[\s\-:|]+\|/.test(l.trim());}
+  function split(l){return l.trim().replace(/^\||\|$/g,'').split('|').map(function(c){return c.trim();});}
+  var hi=-1;
+  for(var i=0;i<lines.length;i++){if(!sep(lines[i])){hi=i;break;}}
+  if(hi===-1) throw new Error('헤더 행 없음');
+  var hdr=split(lines[hi]),rows=[];
+  for(var j=hi+1;j<lines.length;j++){
+    if(sep(lines[j])) continue;
+    var v=split(lines[j]),r={};
+    for(var k=0;k<hdr.length;k++) r[hdr[k]]=(v[k]||'').trim();
+    rows.push(r);
+  }
+  return rows;
+}
+
+/* ── Normalize columns ─────────────────────────────────────────── */
+function normalize(rows) {
+  if(!rows||!rows.length) throw new Error('데이터 없음');
+  var keys=Object.keys(rows[0]);
+  function find(cs){return keys.find(function(k){return cs.some(function(c){return k.trim().toLowerCase()===c.toLowerCase();});})||null;}
+  var iK=find(['index','#','no','no.']),
+      hK=find(['headword','head word','word','term','vocabulary','단어']),
+      sK=find(['synonyms','synonym','syns']),
+      eK=find(['example sentence','example','sentence','usage','예문']),
+      tK=find(['translation','translate','meaning','번역','뜻','definition','해석']);
+  if(!hK) throw new Error('"Headword" 열을 찾을 수 없습니다.\n실제 열 이름: '+keys.join(', '));
+  return rows.filter(function(r){return (r[hK]||'').trim();})
+    .map(function(r,i){return {
+      index:       String((iK?r[iK]:'')||i+1).trim(),
+      headword:    (r[hK]||'').trim(),
+      synonyms:    ((sK?r[sK]:'')||'').trim(),
+      example:     ((eK?r[eK]:'')||'').trim(),
+      translation: ((tK?r[tK]:'')||'').trim()
+    };});
+}
+
+/* ── Finalize & launch ─────────────────────────────────────────── */
+function finalize(rows, fname) {
+  try {
+    var words=normalize(rows);
+    if(!words.length){showError('단어 항목 없음. 열 이름을 확인하세요.');return;}
+    allWords=words; filteredWords=words.slice();
+    hideError();
+    document.getElementById('print-meta').textContent=
+      fname+'  ·  '+words.length+' words  ·  '+new Date().toLocaleDateString();
+    document.getElementById('upload-screen').style.display='none';
+    document.getElementById('study-screen').style.display='block';
+    document.getElementById('btn-back').style.display='block';
+    document.getElementById('header-sub').textContent='Tap a card to reveal';
+    setView('list');
+  } catch(err){showError(err.message);}
+}
+
+/* ── View switching ────────────────────────────────────────────── */
+function setView(mode) {
+  currentView=mode;
+  var isList=(mode==='list');
+  document.getElementById('card-list').style.display = isList?'flex':'none';
+  document.getElementById('sc-area').style.display   = isList?'none':'flex';
+  document.getElementById('ctrl-reveal').style.display = isList?'':'none';
+  document.getElementById('ctrl-hide').style.display   = isList?'':'none';
+  document.getElementById('vt-list').classList.toggle('active',isList);
+  document.getElementById('vt-card').classList.toggle('active',!isList);
+  if(isList) renderList(filteredWords);
+  else { scIdx=0; renderSc(); }
+  updateStats(filteredWords.length,allWords.length);
+}
+
+/* ── Search ────────────────────────────────────────────────────── */
+function onSearch() {
+  var q=document.getElementById('search-input').value.trim().toLowerCase();
+  filteredWords=q?allWords.filter(function(w){return w.headword.toLowerCase().includes(q);}):allWords.slice();
+  updateStats(filteredWords.length,allWords.length);
+  if(currentView==='list') renderList(filteredWords);
+  else{scIdx=0;renderSc();}
+}
+
+/* ── List view ─────────────────────────────────────────────────── */
+function renderList(words) {
+  var list=document.getElementById('card-list');
+  list.innerHTML='';
+  if(!words.length){
+    list.innerHTML='<div class="empty-state"><span>&#128269;</span><p>No results.</p></div>';
+    return;
+  }
+  var frag=document.createDocumentFragment();
+  words.forEach(function(w){
+    var card=document.createElement('div');
+    card.className='vocab-card';
+    var st=w.synonyms?w.synonyms.split(/[;,]/).map(function(s){return s.trim();}).filter(Boolean)
+      .map(function(s){return '<span class="syn-tag">'+esc(s)+'</span>';}).join(''):'';
+    card.innerHTML=
+      '<div class="card-front" onclick="toggleCard(this.closest(\'.vocab-card\'))">' +
+        '<div class="card-front-left">' +
+          '<div class="card-index">'+esc(w.index)+'</div>' +
+          '<div class="card-headword">'+esc(w.headword)+'</div>' +
+        '</div>' +
+        '<button class="reveal-btn">' +
+          '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
+        '</button>' +
+      '</div>' +
+      '<div class="card-back">' +
+        (w.translation?'<div class="card-section"><div class="card-label">Translation</div><div class="card-translation">'+esc(w.translation)+'</div></div>':'')+
+        (st?'<div class="card-section"><div class="card-label">Synonyms</div><div class="card-synonyms">'+st+'</div></div>':'')+
+        (w.example?'<div class="card-section"><div class="card-label">Example</div><div class="card-example">'+esc(w.example)+'</div></div>':'')+
+      '</div>';
+    frag.appendChild(card);
+  });
+  list.appendChild(frag);
+}
+function toggleCard(c){c.classList.toggle('revealed');updateProgress();}
+function revealAll()  {document.querySelectorAll('.vocab-card').forEach(function(c){c.classList.add('revealed');});updateProgress();}
+function collapseAll(){document.querySelectorAll('.vocab-card').forEach(function(c){c.classList.remove('revealed');});updateProgress();}
+
+/* ── Single card view ──────────────────────────────────────────── */
+function renderSc(dir) {
+  var card=document.getElementById('sc-card');
+  card.classList.remove('revealed','dir-right','dir-left');
+  void card.offsetWidth; // restart animation
+  if(dir) card.classList.add('dir-'+dir);
+
+  var w=filteredWords[scIdx];
+  if(!w){
+    document.getElementById('sc-hw').textContent='—';
+    document.getElementById('sc-badge').textContent='';
+    document.getElementById('sc-back-inner').innerHTML='';
+    scUpdateProgress(); scUpdateNav(); return;
+  }
+  document.getElementById('sc-badge').textContent=w.index;
+  document.getElementById('sc-hw').textContent=w.headword;
+
+  var st=w.synonyms?w.synonyms.split(/[;,]/).map(function(s){return s.trim();}).filter(Boolean)
+    .map(function(s){return '<span class="sc-syn-tag">'+esc(s)+'</span>';}).join(''):'';
+  document.getElementById('sc-back-inner').innerHTML=
+    (w.translation?'<div class="sc-field"><div class="sc-field-label">Translation</div><div class="sc-translation">'+esc(w.translation)+'</div></div>':'')+
+    (st?'<div class="sc-field"><div class="sc-field-label">Synonyms</div><div class="sc-synonyms">'+st+'</div></div>':'')+
+    (w.example?'<div class="sc-field"><div class="sc-field-label">Example</div><div class="sc-example">'+esc(w.example)+'</div></div>':'');
+  scUpdateProgress(); scUpdateNav();
+}
+
+function scTap() {
+  if(didSwipe){didSwipe=false;return;}
+  document.getElementById('sc-card').classList.toggle('revealed');
+}
+function scMove(d) {
+  var ni=scIdx+d;
+  if(ni<0||ni>=filteredWords.length) return;
+  scIdx=ni;
+  renderSc(d>0?'right':'left');
+}
+function scGoTo(i) {scIdx=i; renderSc();}
+function scShuffle() {
+  var a=filteredWords.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;
+  }
+  filteredWords=a; scIdx=0; renderSc('right');
+}
+function scUpdateProgress() {
+  var tot=filteredWords.length, cur=tot?scIdx+1:0;
+  var pct=tot?Math.round(cur/tot*100):0;
+  document.getElementById('sc-counter').textContent=cur+' / '+tot;
+  document.getElementById('sc-bar').style.width=pct+'%';
+  document.getElementById('sc-pct').textContent=pct+'%';
+}
+function scUpdateNav() {
+  document.getElementById('sc-prev').disabled=(scIdx<=0);
+  document.getElementById('sc-next').disabled=(scIdx>=filteredWords.length-1);
+}
+
+/* ── Swipe gestures ────────────────────────────────────────────── */
+var scCard=document.getElementById('sc-card');
+scCard.addEventListener('touchstart',function(e){
+  touchX=e.touches[0].clientX; touchY=e.touches[0].clientY;
+},{passive:true});
+scCard.addEventListener('touchend',function(e){
+  var dx=e.changedTouches[0].clientX-touchX;
+  var dy=e.changedTouches[0].clientY-touchY;
+  if(Math.abs(dx)>Math.abs(dy)*1.3&&Math.abs(dx)>42){
+    didSwipe=true;
+    scMove(dx<0?1:-1);
+  }
+},{passive:true});
+
+/* ── Keyboard ──────────────────────────────────────────────────── */
+document.addEventListener('keydown',function(e){
+  if(currentView!=='card') return;
+  if     (e.key==='ArrowRight'||e.key==='ArrowDown') scMove(1);
+  else if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   scMove(-1);
+  else if(e.key===' '){e.preventDefault();document.getElementById('sc-card').classList.toggle('revealed');}
+});
+
+/* ── Stats ─────────────────────────────────────────────────────── */
+function updateStats(shown,total) {
+  document.getElementById('stats-text').innerHTML=shown===total
+    ?'<strong>'+total+'</strong> words'
+    :'Showing <strong>'+shown+'</strong> / <strong>'+total+'</strong>';
+  updateProgress();
+}
+function updateProgress() {
+  if(currentView!=='list'){document.getElementById('progress-text').textContent='';return;}
+  var all=document.querySelectorAll('.vocab-card').length;
+  var rev=document.querySelectorAll('.vocab-card.revealed').length;
+  document.getElementById('progress-text').innerHTML=all
+    ?'Revealed: <strong>'+rev+'/'+all+'</strong> ('+Math.round(rev/all*100)+'%)'
+    :'';
+}
+
+/* ── Print ─────────────────────────────────────────────────────── */
+function triggerPrint() {
+  var cards=document.querySelectorAll('.vocab-card');
+  var was=Array.from(cards).map(function(c){return c.classList.contains('revealed');});
+  cards.forEach(function(c){c.classList.add('revealed');});
+  window.print();
+  cards.forEach(function(c,i){c.classList.toggle('revealed',was[i]);});
+  updateProgress();
+}
+
+/* ── Reset ─────────────────────────────────────────────────────── */
+function resetApp() {
+  allWords=[]; filteredWords=[];
+  document.getElementById('study-screen').style.display='none';
+  document.getElementById('upload-screen').style.display='flex';
+  document.getElementById('btn-back').style.display='none';
+  document.getElementById('header-sub').textContent='Upload a file to start studying';
+  document.getElementById('search-input').value='';
+  document.getElementById('card-list').innerHTML='';
+  hideError();
+}
+
+/* ── Helpers ───────────────────────────────────────────────────── */
+function readAB(file,cb){
+  var r=new FileReader();
+  r.onerror=function(){showError('파일 읽기 실패');};
+  r.onload=function(e){cb(e.target.result);};
+  r.readAsArrayBuffer(file);
+}
+function showError(msg){var el=document.getElementById('error-msg');el.textContent='⚠️ '+msg;el.style.display='block';}
+function hideError(){var el=document.getElementById('error-msg');el.style.display='none';el.textContent='';}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>
